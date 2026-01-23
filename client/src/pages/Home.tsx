@@ -63,6 +63,18 @@ export default function Home() {
 
   return (
     <div className="min-h-screen pb-20 overflow-x-hidden">
+      {/* Admin Link Button */}
+      <div className="fixed top-4 right-4 z-50">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="bg-background/50 backdrop-blur-sm border-white/20 text-white hover:bg-white/20"
+          onClick={() => window.location.href = "/admin/dashboard"}
+        >
+          Admin
+        </Button>
+      </div>
+
       {/* Decorative Background Pattern */}
       <div className="fixed inset-0 pointer-events-none bg-songket z-[-1]" />
 
