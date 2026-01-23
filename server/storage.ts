@@ -1,7 +1,7 @@
-import { db } from "../db";
+import { db } from "./db";
 import { guests, settings, type Guest, type InsertGuest, type Settings, type InsertSettings } from "@shared/schema";
 import { eq, and } from "drizzle-orm";
-import { authStorage as BaseAuthStorage } from "./storage";
+import { authStorage as BaseAuthStorage } from "./replit_integrations/auth/storage";
 
 export interface IStorage {
   getUser(id: string): Promise<any>;
@@ -14,7 +14,7 @@ export interface IStorage {
   updateSettings(data: InsertSettings): Promise<Settings>;
 }
 
-export class DatabaseStorage extends (BaseAuthStorage.constructor as any) implements IStorage {
+export class DatabaseStorage implements IStorage {
   async getUser(id: string) { return BaseAuthStorage.getUser(id); }
   async upsertUser(user: any) { return BaseAuthStorage.upsertUser(user); }
 
