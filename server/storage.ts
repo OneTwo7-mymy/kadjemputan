@@ -1,38 +1,63 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
+import { db } from "./db";
+import { guests, type Guest, type InsertGuest } from "@shared/schema";
+import { eq, and } from "drizzle-orm";
+import { authStorage, type IAuthStorage } from "./replit_integrations/auth/storage";
 
-// modify the interface with any CRUD methods
-// you might need
-
-export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+export interface IStorage extends IAuthStorage {
+  createGuest(guest: InsertGuest): Promise<Guest>;
+  getGuests(): Promise<Guest[]>;
+  drawWinner(): Promise<Guest | undefined>;
+  resetDraw(): Promise<void>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-
+export class DatabaseStorage extends authStorage.constructor implements IStorage {
   constructor() {
-    this.users = new Map();
+    super();
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+  async createGuest(insertGuest: InsertGuest): Promise<Guest> {
+    // Generate a simple 4-digit code (e.g. A-1023) or random string
+    // For simplicity, let's use a random 6-char alphanumeric string
+    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+    
+    const [guest] = await db
+      .insert(guests)
+      .values({ ...insertGuest, luckyDrawCode: code })
+      .returning();
+    return guest;
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+  async getGuests(): Promise<Guest[]> {
+    return await db.select().from(guests).orderBy(guests.createdAt);
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+  async drawWinner(): Promise<Guest | undefined> {
+    // Select a random guest who is attending and not yet a winner
+    const eligibleGuests = await db
+      .select()
+      .from(guests)
+      .where(and(eq(guests.attendance, "attending"), eq(guests.isWinner, false)));
+
+    if (eligibleGuests.length === 0) {
+      return undefined;
+    }
+
+    const randomIndex = Math.floor(Math.random() * eligibleGuests.length);
+    const winner = eligibleGuests[randomIndex];
+
+    // Mark as winner
+    const [updatedWinner] = await db
+      .update(guests)
+      .set({ isWinner: true, winRank: 1 }) // Simple rank logic for now
+      .where(eq(guests.id, winner.id))
+      .returning();
+
+    return updatedWinner;
+  }
+
+  async resetDraw(): Promise<void> {
+    await db.update(guests).set({ isWinner: false, winRank: null });
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

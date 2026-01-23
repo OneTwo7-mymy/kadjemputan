@@ -1,16 +1,59 @@
 import type { Express } from "express";
-import { createServer, type Server } from "http";
+import type { Server } from "http";
 import { storage } from "./storage";
+import { api } from "@shared/routes";
+import { z } from "zod";
+import { setupAuth, registerAuthRoutes, isAuthenticated } from "./replit_integrations/auth";
+
+import { seedDatabase } from "./seed";
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  // put application routes here
-  // prefix all routes with /api
+  
+  // Seed DB
+  await seedDatabase();
 
-  // use storage to perform CRUD operations on the storage interface
-  // e.g. storage.insertUser(user) or storage.getUserByUsername(username)
+  // Setup Replit Auth first
+  await setupAuth(app);
+  registerAuthRoutes(app);
+
+  // Public: RSVP
+  app.post(api.guests.create.path, async (req, res) => {
+    try {
+      const input = api.guests.create.input.parse(req.body);
+      const guest = await storage.createGuest(input);
+      res.status(201).json(guest);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({
+          message: err.errors[0].message,
+          field: err.errors[0].path.join('.'),
+        });
+      }
+      throw err;
+    }
+  });
+
+  // Protected: Admin Routes
+  app.get(api.guests.list.path, isAuthenticated, async (req, res) => {
+    const guests = await storage.getGuests();
+    res.json(guests);
+  });
+
+  app.post(api.guests.drawWinner.path, isAuthenticated, async (req, res) => {
+    const winner = await storage.drawWinner();
+    if (!winner) {
+      return res.status(404).json({ message: "No eligible participants found for the draw." });
+    }
+    res.json(winner);
+  });
+
+  app.post(api.guests.resetDraw.path, isAuthenticated, async (req, res) => {
+    await storage.resetDraw();
+    res.json({ message: "Draw has been reset." });
+  });
 
   return httpServer;
 }
