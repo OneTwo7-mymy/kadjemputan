@@ -22,6 +22,17 @@ export const guests = pgTable("guests", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Settings Table
+export const settings = pgTable("settings", {
+  id: serial("id").primaryKey(),
+  eventName: text("event_name").notNull().default("Rumah Terbuka & Akikah"),
+  eventDate: text("event_date").notNull().default("Sabtu, 25 Nov 2024"),
+  eventTime: text("event_time").notNull().default("11:00 PG - 4:00 PTG"),
+  locationName: text("location_name").notNull().default("Dewan Seri Kenangan, KL"),
+  googleMapsUrl: text("google_maps_url").notNull().default("https://maps.google.com"),
+  wazeUrl: text("waze_url").notNull().default("https://waze.com"),
+});
+
 // Schemas
 export const insertGuestSchema = createInsertSchema(guests).omit({ 
   id: true, 
@@ -31,6 +42,10 @@ export const insertGuestSchema = createInsertSchema(guests).omit({
   winRank: true 
 });
 
+export const insertSettingsSchema = createInsertSchema(settings).omit({ id: true });
+
 // Types
 export type Guest = typeof guests.$inferSelect;
 export type InsertGuest = z.infer<typeof insertGuestSchema>;
+export type Settings = typeof settings.$inferSelect;
+export type InsertSettings = z.infer<typeof insertSettingsSchema>;

@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { guests, type Guest, type InsertGuest } from "@shared/schema";
+import { guests, settings, type Guest, type InsertGuest, type Settings, type InsertSettings } from "@shared/schema";
 import { eq, and } from "drizzle-orm";
 import { authStorage, type IAuthStorage } from "./replit_integrations/auth/storage";
 
@@ -8,6 +8,8 @@ export interface IStorage extends IAuthStorage {
   getGuests(): Promise<Guest[]>;
   drawWinner(): Promise<Guest | undefined>;
   resetDraw(): Promise<void>;
+  getSettings(): Promise<Settings>;
+  updateSettings(data: InsertSettings): Promise<Settings>;
 }
 
 export class DatabaseStorage extends authStorage.constructor implements IStorage {
@@ -16,10 +18,7 @@ export class DatabaseStorage extends authStorage.constructor implements IStorage
   }
 
   async createGuest(insertGuest: InsertGuest): Promise<Guest> {
-    // Generate a simple 4-digit code (e.g. A-1023) or random string
-    // For simplicity, let's use a random 6-char alphanumeric string
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-    
     const [guest] = await db
       .insert(guests)
       .values({ ...insertGuest, luckyDrawCode: code })
@@ -32,7 +31,6 @@ export class DatabaseStorage extends authStorage.constructor implements IStorage
   }
 
   async drawWinner(): Promise<Guest | undefined> {
-    // Select a random guest who is attending and not yet a winner
     const eligibleGuests = await db
       .select()
       .from(guests)
@@ -45,10 +43,9 @@ export class DatabaseStorage extends authStorage.constructor implements IStorage
     const randomIndex = Math.floor(Math.random() * eligibleGuests.length);
     const winner = eligibleGuests[randomIndex];
 
-    // Mark as winner
     const [updatedWinner] = await db
       .update(guests)
-      .set({ isWinner: true, winRank: 1 }) // Simple rank logic for now
+      .set({ isWinner: true, winRank: 1 })
       .where(eq(guests.id, winner.id))
       .returning();
 
@@ -57,6 +54,24 @@ export class DatabaseStorage extends authStorage.constructor implements IStorage
 
   async resetDraw(): Promise<void> {
     await db.update(guests).set({ isWinner: false, winRank: null });
+  }
+
+  async getSettings(): Promise<Settings> {
+    const [existing] = await db.select().from(settings).limit(1);
+    if (existing) return existing;
+
+    const [created] = await db.insert(settings).values({}).returning();
+    return created;
+  }
+
+  async updateSettings(data: InsertSettings): Promise<Settings> {
+    const current = await this.getSettings();
+    const [updated] = await db
+      .update(settings)
+      .set(data)
+      .where(eq(settings.id, current.id))
+      .returning();
+    return updated;
   }
 }
 

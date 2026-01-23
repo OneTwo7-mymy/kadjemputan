@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { insertGuestSchema, type InsertGuest } from "@shared/schema";
-import { useCreateGuest } from "@/hooks/use-guests";
+import { useCreateGuest, useSettings } from "@/hooks/use-guests";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,10 +12,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { TicketCard } from "@/components/TicketCard";
 import { OrnamentalBorder } from "@/components/OrnamentalBorder";
-import { MapPin, Calendar, Clock, Loader2, ArrowRight, Heart } from "lucide-react";
+import { MapPin, Calendar, Clock, Loader2, Heart, ExternalLink, QrCode } from "lucide-react";
 import { z } from "zod";
+import { QRCodeCanvas } from "qrcode.react";
 
-// Extend schema for frontend validation if needed, or stick to shared schema
 const formSchema = insertGuestSchema.extend({
   attendance: z.enum(["attending", "maybe", "not_attending"]),
   phoneNumber: z.string().min(10, "Nombor telefon tidak sah"),
@@ -25,6 +24,7 @@ const formSchema = insertGuestSchema.extend({
 
 export default function Home() {
   const { toast } = useToast();
+  const { data: settings, isLoading: isSettingsLoading } = useSettings();
   const createGuest = useCreateGuest();
   const [successData, setSuccessData] = useState<{ name: string; code: string } | null>(null);
 
@@ -61,9 +61,16 @@ export default function Home() {
 
   const isAttending = form.watch("attendance") === "attending";
 
+  if (isSettingsLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen pb-20 overflow-x-hidden">
-      {/* Admin Link Button */}
       <div className="fixed top-4 right-4 z-50">
         <Button 
           variant="outline" 
@@ -75,15 +82,10 @@ export default function Home() {
         </Button>
       </div>
 
-      {/* Decorative Background Pattern */}
       <div className="fixed inset-0 pointer-events-none bg-songket z-[-1]" />
 
-      {/* Hero Section */}
       <header className="relative w-full h-[60vh] min-h-[500px] flex items-center justify-center text-center px-4 overflow-hidden">
-        {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
-          {/* Using Unsplash for a festive/event background */}
-          {/* elegant wedding table setting flowers gold */}
           <img 
             src="https://pixabay.com/get/gdff400ec379c9b077c5a23a74e0a7a28c74d97e095e6f17392cadeeaf513616fb6260f10a82918cdddb1df38588eb78f7d7d1b14d613eb6525bc8b4149e04e6c_1280.jpg" 
             alt="Hero Background" 
@@ -102,10 +104,7 @@ export default function Home() {
             Assalamualaikum & Salam Sejahtera
           </p>
           <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold leading-tight drop-shadow-lg">
-            Rumah Terbuka <br />
-            <span className="font-handwriting text-5xl md:text-7xl lg:text-8xl text-yellow-400 block mt-2">
-              & Akikah
-            </span>
+            {settings?.eventName}
           </h1>
           <div className="flex flex-col items-center gap-2 mt-4 font-body text-sm md:text-base opacity-90">
             <p>Raikan Cinta & Kesyukuran Bersama Kami</p>
@@ -116,12 +115,11 @@ export default function Home() {
       </header>
 
       <main className="container max-w-4xl mx-auto px-4 -mt-20 relative z-20">
-        {/* Info Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
           {[
-            { icon: Calendar, label: "Tarikh", value: "Sabtu, 25 Nov 2024" },
-            { icon: Clock, label: "Masa", value: "11:00 PG - 4:00 PTG" },
-            { icon: MapPin, label: "Lokasi", value: "Dewan Seri Kenangan, KL" },
+            { icon: Calendar, label: "Tarikh", value: settings?.eventDate },
+            { icon: Clock, label: "Masa", value: settings?.eventTime },
+            { icon: MapPin, label: "Lokasi", value: settings?.locationName },
           ].map((item, idx) => (
             <motion.div
               key={idx}
@@ -139,12 +137,11 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Content Container */}
         <motion.div 
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="bg-card rounded-2xl shadow-2xl p-6 md:p-12 relative overflow-hidden"
+          className="bg-card rounded-2xl shadow-2xl p-6 md:p-12 relative overflow-hidden mb-12"
         >
           <OrnamentalBorder />
           
@@ -168,25 +165,14 @@ export default function Home() {
                   exit={{ opacity: 0, scale: 0.95 }}
                 >
                   <TicketCard name={successData.name} code={successData.code} />
-                  
                   <div className="mt-8 text-center">
-                    <Button 
-                      variant="outline" 
-                      onClick={() => {
-                        setSuccessData(null);
-                        form.reset();
-                      }}
-                    >
+                    <Button variant="outline" onClick={() => { setSuccessData(null); form.reset(); }}>
                       Daftar Tetamu Lain
                     </Button>
                   </div>
                 </motion.div>
               ) : (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                       <FormField
@@ -195,14 +181,11 @@ export default function Home() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Nama Penuh</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Ali bin Abu" className="bg-background" {...field} />
-                            </FormControl>
+                            <FormControl><Input placeholder="Ali bin Abu" className="bg-background" {...field} /></FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <FormField
                           control={form.control}
@@ -210,14 +193,11 @@ export default function Home() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>No. Telefon</FormLabel>
-                              <FormControl>
-                                <Input placeholder="0123456789" type="tel" className="bg-background" {...field} />
-                              </FormControl>
+                              <FormControl><Input placeholder="0123456789" type="tel" className="bg-background" {...field} /></FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
-
                         <FormField
                           control={form.control}
                           name="attendance"
@@ -225,11 +205,7 @@ export default function Home() {
                             <FormItem>
                               <FormLabel>Status Kehadiran</FormLabel>
                               <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger className="bg-background">
-                                    <SelectValue placeholder="Pilih status" />
-                                  </SelectTrigger>
-                                </FormControl>
+                                <FormControl><SelectTrigger className="bg-background"><SelectValue placeholder="Pilih status" /></SelectTrigger></FormControl>
                                 <SelectContent>
                                   <SelectItem value="attending">Hadir</SelectItem>
                                   <SelectItem value="maybe">Mungkin</SelectItem>
@@ -241,64 +217,34 @@ export default function Home() {
                           )}
                         />
                       </div>
-
                       {isAttending && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          className="overflow-hidden"
-                        >
+                        <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                           <FormField
                             control={form.control}
                             name="totalPax"
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>Jumlah Tetamu (termasuk anda)</FormLabel>
-                                <FormControl>
-                                  <Input type="number" min={1} max={10} className="bg-background" {...field} />
-                                </FormControl>
+                                <FormControl><Input type="number" min={1} max={10} className="bg-background" {...field} /></FormControl>
                                 <FormMessage />
                               </FormItem>
                             )}
                           />
                         </motion.div>
                       )}
-
                       <FormField
                         control={form.control}
                         name="wishes"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Ucapan (Pilihan)</FormLabel>
-                            <FormControl>
-                              <Textarea 
-                                placeholder="Sampaikan ucapan atau doa..." 
-                                className="bg-background resize-none min-h-[100px]" 
-                                {...field} 
-                              />
-                            </FormControl>
+                            <FormControl><Textarea placeholder="Sampaikan ucapan atau doa..." className="bg-background resize-none min-h-[100px]" {...field} /></FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-
-                      <Button 
-                        type="submit" 
-                        variant="gold" 
-                        className="w-full text-lg h-12 rounded-xl"
-                        disabled={createGuest.isPending}
-                      >
-                        {createGuest.isPending ? (
-                          <>
-                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                            Sedang Hantar...
-                          </>
-                        ) : (
-                          <>
-                            Hantar RSVP <Heart className="w-4 h-4 ml-2 fill-current" />
-                          </>
-                        )}
+                      <Button type="submit" variant="gold" className="w-full text-lg h-12 rounded-xl" disabled={createGuest.isPending}>
+                        {createGuest.isPending ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Sedang Hantar...</> : <>Hantar RSVP <Heart className="w-4 h-4 ml-2 fill-current" /></>}
                       </Button>
                     </form>
                   </Form>
@@ -307,6 +253,44 @@ export default function Home() {
             </AnimatePresence>
           </div>
         </motion.div>
+
+        {/* Location Section with QR Code */}
+        <motion.section 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="bg-card rounded-2xl shadow-xl p-8 border border-border/50 text-center"
+        >
+          <div className="inline-flex items-center justify-center p-3 bg-primary/10 rounded-full mb-4 text-primary">
+            <QrCode className="w-8 h-8" />
+          </div>
+          <h2 className="font-display text-3xl font-bold text-primary mb-2">Pandu Arah</h2>
+          <p className="text-muted-foreground mb-8">Scan QR code di bawah atau guna aplikasi pandu arah.</p>
+          
+          <div className="flex flex-col md:flex-row items-center justify-center gap-12">
+            <div className="bg-white p-4 rounded-xl shadow-md border-2 border-primary/20">
+              <QRCodeCanvas value={settings?.googleMapsUrl || ""} size={180} />
+              <p className="mt-2 text-xs font-mono text-muted-foreground">Scan Google Maps</p>
+            </div>
+            
+            <div className="flex flex-col gap-4 w-full max-w-[240px]">
+              <Button 
+                variant="outline" 
+                className="w-full h-14 text-lg border-primary/20 hover:bg-primary/5"
+                onClick={() => window.open(settings?.googleMapsUrl, "_blank")}
+              >
+                Google Maps <ExternalLink className="w-4 h-4 ml-2" />
+              </Button>
+              <Button 
+                variant="outline" 
+                className="w-full h-14 text-lg border-primary/20 hover:bg-primary/5"
+                onClick={() => window.open(settings?.wazeUrl, "_blank")}
+              >
+                Waze <ExternalLink className="w-4 h-4 ml-2" />
+              </Button>
+            </div>
+          </div>
+        </motion.section>
       </main>
 
       <footer className="text-center py-10 text-muted-foreground text-sm font-medium relative z-10">

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { insertGuestSchema, guests } from './schema';
+import { insertGuestSchema, guests, settings, insertSettingsSchema } from './schema';
 
 export const errorSchemas = {
   validation: z.object({
@@ -50,6 +50,24 @@ export const api = {
       path: '/api/guests/reset-draw',
       responses: {
         200: z.object({ message: z.string() }),
+        401: errorSchemas.unauthorized,
+      },
+    },
+  },
+  settings: {
+    get: {
+      method: 'GET' as const,
+      path: '/api/settings',
+      responses: {
+        200: z.custom<typeof settings.$inferSelect>(),
+      },
+    },
+    update: {
+      method: 'POST' as const,
+      path: '/api/settings',
+      input: insertSettingsSchema,
+      responses: {
+        200: z.custom<typeof settings.$inferSelect>(),
         401: errorSchemas.unauthorized,
       },
     },

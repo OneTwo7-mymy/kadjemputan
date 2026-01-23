@@ -4,7 +4,6 @@ import { storage } from "./storage";
 import { api } from "@shared/routes";
 import { z } from "zod";
 import { setupAuth, registerAuthRoutes, isAuthenticated } from "./replit_integrations/auth";
-
 import { seedDatabase } from "./seed";
 
 export async function registerRoutes(
@@ -12,14 +11,10 @@ export async function registerRoutes(
   app: Express
 ): Promise<Server> {
   
-  // Seed DB
   await seedDatabase();
-
-  // Setup Replit Auth first
   await setupAuth(app);
   registerAuthRoutes(app);
 
-  // Public: RSVP
   app.post(api.guests.create.path, async (req, res) => {
     try {
       const input = api.guests.create.input.parse(req.body);
@@ -36,7 +31,6 @@ export async function registerRoutes(
     }
   });
 
-  // Protected: Admin Routes
   app.get(api.guests.list.path, isAuthenticated, async (req, res) => {
     const guests = await storage.getGuests();
     res.json(guests);
@@ -53,6 +47,27 @@ export async function registerRoutes(
   app.post(api.guests.resetDraw.path, isAuthenticated, async (req, res) => {
     await storage.resetDraw();
     res.json({ message: "Draw has been reset." });
+  });
+
+  app.get(api.settings.get.path, async (req, res) => {
+    const settings = await storage.getSettings();
+    res.json(settings);
+  });
+
+  app.post(api.settings.update.path, isAuthenticated, async (req, res) => {
+    try {
+      const input = api.settings.update.input.parse(req.body);
+      const settings = await storage.updateSettings(input);
+      res.json(settings);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({
+          message: err.errors[0].message,
+          field: err.errors[0].path.join('.'),
+        });
+      }
+      throw err;
+    }
   });
 
   return httpServer;

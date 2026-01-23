@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, type Guest, type InsertGuest } from "@shared/routes";
+import { api, type Guest, type InsertGuest, type Settings, type InsertSettings } from "@shared/routes";
 
-// GET /api/guests
+// Guests
 export function useGuests() {
   return useQuery({
     queryKey: [api.guests.list.path],
@@ -14,7 +14,6 @@ export function useGuests() {
   });
 }
 
-// POST /api/guests (RSVP)
 export function useCreateGuest() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -24,7 +23,6 @@ export function useCreateGuest() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      
       if (!res.ok) {
         if (res.status === 400) {
           const error = await res.json();
@@ -34,13 +32,10 @@ export function useCreateGuest() {
       }
       return api.guests.create.responses[201].parse(await res.json());
     },
-    // We don't necessarily need to invalidate the list if this is a public form submission,
-    // but it helps if we are viewing the admin panel simultaneously.
     onSuccess: () => queryClient.invalidateQueries({ queryKey: [api.guests.list.path] }),
   });
 }
 
-// POST /api/guests/draw (Draw Winner)
 export function useDrawWinner() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -49,7 +44,6 @@ export function useDrawWinner() {
         method: api.guests.drawWinner.method,
         credentials: "include",
       });
-
       if (!res.ok) {
         if (res.status === 404) throw new Error("No eligible participants left");
         if (res.status === 401) throw new Error("Unauthorized");
@@ -61,7 +55,6 @@ export function useDrawWinner() {
   });
 }
 
-// POST /api/guests/reset-draw
 export function useResetDraw() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -70,10 +63,38 @@ export function useResetDraw() {
         method: api.guests.resetDraw.method,
         credentials: "include",
       });
-
       if (!res.ok) throw new Error("Failed to reset draw");
       return api.guests.resetDraw.responses[200].parse(await res.json());
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: [api.guests.list.path] }),
+  });
+}
+
+// Settings
+export function useSettings() {
+  return useQuery({
+    queryKey: [api.settings.get.path],
+    queryFn: async () => {
+      const res = await fetch(api.settings.get.path);
+      if (!res.ok) throw new Error("Failed to fetch settings");
+      return api.settings.get.responses[200].parse(await res.json());
+    },
+  });
+}
+
+export function useUpdateSettings() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: InsertSettings) => {
+      const res = await fetch(api.settings.update.path, {
+        method: api.settings.update.method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to update settings");
+      return api.settings.update.responses[200].parse(await res.json());
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [api.settings.get.path] }),
   });
 }
