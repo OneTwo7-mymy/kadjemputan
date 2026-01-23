@@ -1,9 +1,11 @@
-import { db } from "./db";
+import { db } from "../db";
 import { guests, settings, type Guest, type InsertGuest, type Settings, type InsertSettings } from "@shared/schema";
 import { eq, and } from "drizzle-orm";
-import { authStorage, type IAuthStorage } from "./replit_integrations/auth/storage";
+import { authStorage as BaseAuthStorage } from "./storage";
 
-export interface IStorage extends IAuthStorage {
+export interface IStorage {
+  getUser(id: string): Promise<any>;
+  upsertUser(user: any): Promise<any>;
   createGuest(guest: InsertGuest): Promise<Guest>;
   getGuests(): Promise<Guest[]>;
   drawWinner(): Promise<Guest | undefined>;
@@ -12,10 +14,9 @@ export interface IStorage extends IAuthStorage {
   updateSettings(data: InsertSettings): Promise<Settings>;
 }
 
-export class DatabaseStorage extends authStorage.constructor implements IStorage {
-  constructor() {
-    super();
-  }
+export class DatabaseStorage extends (BaseAuthStorage.constructor as any) implements IStorage {
+  async getUser(id: string) { return BaseAuthStorage.getUser(id); }
+  async upsertUser(user: any) { return BaseAuthStorage.upsertUser(user); }
 
   async createGuest(insertGuest: InsertGuest): Promise<Guest> {
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -36,9 +37,7 @@ export class DatabaseStorage extends authStorage.constructor implements IStorage
       .from(guests)
       .where(and(eq(guests.attendance, "attending"), eq(guests.isWinner, false)));
 
-    if (eligibleGuests.length === 0) {
-      return undefined;
-    }
+    if (eligibleGuests.length === 0) return undefined;
 
     const randomIndex = Math.floor(Math.random() * eligibleGuests.length);
     const winner = eligibleGuests[randomIndex];
@@ -59,7 +58,6 @@ export class DatabaseStorage extends authStorage.constructor implements IStorage
   async getSettings(): Promise<Settings> {
     const [existing] = await db.select().from(settings).limit(1);
     if (existing) return existing;
-
     const [created] = await db.insert(settings).values({}).returning();
     return created;
   }

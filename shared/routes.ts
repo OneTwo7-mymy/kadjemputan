@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { insertGuestSchema, guests, settings, insertSettingsSchema } from './schema';
+import type { Guest, InsertGuest, Settings, InsertSettings } from './schema';
 
 export const errorSchemas = {
   validation: z.object({
@@ -24,7 +25,7 @@ export const api = {
       path: '/api/guests',
       input: insertGuestSchema,
       responses: {
-        201: z.custom<typeof guests.$inferSelect>(),
+        201: z.custom<Guest>(),
         400: errorSchemas.validation,
       },
     },
@@ -32,7 +33,7 @@ export const api = {
       method: 'GET' as const,
       path: '/api/guests',
       responses: {
-        200: z.array(z.custom<typeof guests.$inferSelect>()),
+        200: z.array(z.custom<Guest>()),
         401: errorSchemas.unauthorized,
       },
     },
@@ -40,8 +41,8 @@ export const api = {
       method: 'POST' as const,
       path: '/api/guests/draw',
       responses: {
-        200: z.custom<typeof guests.$inferSelect>(),
-        404: errorSchemas.notFound, // No eligible participants
+        200: z.custom<Guest>(),
+        404: errorSchemas.notFound,
         401: errorSchemas.unauthorized,
       },
     },
@@ -59,7 +60,7 @@ export const api = {
       method: 'GET' as const,
       path: '/api/settings',
       responses: {
-        200: z.custom<typeof settings.$inferSelect>(),
+        200: z.custom<Settings>(),
       },
     },
     update: {
@@ -67,7 +68,7 @@ export const api = {
       path: '/api/settings',
       input: insertSettingsSchema,
       responses: {
-        200: z.custom<typeof settings.$inferSelect>(),
+        200: z.custom<Settings>(),
         401: errorSchemas.unauthorized,
       },
     },
@@ -85,3 +86,5 @@ export function buildUrl(path: string, params?: Record<string, string | number>)
   }
   return url;
 }
+
+export type { Guest, InsertGuest, Settings, InsertSettings };

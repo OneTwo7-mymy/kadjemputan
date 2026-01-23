@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, type Guest, type InsertGuest, type Settings, type InsertSettings } from "@shared/routes";
+import { api } from "@shared/routes";
+import type { Guest, InsertGuest, Settings, InsertSettings } from "@shared/routes";
 
 // Guests
 export function useGuests() {

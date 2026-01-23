@@ -225,7 +225,7 @@ export default function Home() {
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>Jumlah Tetamu (termasuk anda)</FormLabel>
-                                <FormControl><Input type="number" min={1} max={10} className="bg-background" {...field} /></FormControl>
+                                <FormControl><Input type="number" min={1} max={10} className="bg-background" {...field} value={field.value ?? ""} /></FormControl>
                                 <FormMessage />
                               </FormItem>
                             )}
@@ -238,7 +238,7 @@ export default function Home() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Ucapan (Pilihan)</FormLabel>
-                            <FormControl><Textarea placeholder="Sampaikan ucapan atau doa..." className="bg-background resize-none min-h-[100px]" {...field} /></FormControl>
+                            <FormControl><Textarea placeholder="Sampaikan ucapan atau doa..." className="bg-background resize-none min-h-[100px]" {...field} value={field.value ?? ""} /></FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
