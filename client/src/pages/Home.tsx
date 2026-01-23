@@ -109,7 +109,7 @@ export default function Home() {
           <div className="flex flex-col items-center gap-2 mt-4 font-body text-sm md:text-base opacity-90">
             <p>Raikan Cinta & Kesyukuran Bersama Kami</p>
             <div className="h-px w-20 bg-yellow-400/60 my-2" />
-            <p className="uppercase tracking-widest text-xs md:text-sm">Keluarga Hj. Ahmad & Hjh. Sarah</p>
+            <p className="uppercase tracking-widest text-xs md:text-sm">{settings?.familyName}</p>
           </div>
         </motion.div>
       </header>

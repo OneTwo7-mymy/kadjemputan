@@ -252,6 +252,9 @@ export default function AdminDashboard() {
                   <FormField control={form.control} name="eventName" render={({ field }) => (
                     <FormItem><FormLabel>Nama Majlis</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                   )} />
+                  <FormField control={form.control} name="familyName" render={({ field }) => (
+                    <FormItem><FormLabel>Nama Keluarga (Tuan Rumah)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField control={form.control} name="eventDate" render={({ field }) => (
                       <FormItem><FormLabel>Tarikh</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
