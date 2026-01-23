@@ -76,7 +76,7 @@ export default function Home() {
           variant="outline" 
           size="sm" 
           className="bg-background/50 backdrop-blur-sm border-white/20 text-white hover:bg-white/20"
-          onClick={() => window.location.href = "/admin/dashboard"}
+          onClick={() => window.location.href = "/admin/login"}
         >
           Admin
         </Button>
