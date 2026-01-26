@@ -187,9 +187,16 @@ export default function Home() {
             src={settings?.heroImageUrl || "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=2000&auto=format&fit=crop"} 
             alt="Hero Background" 
             className="w-full h-full object-cover"
-            style={{ objectPosition: 'center center' }}
+            style={{ 
+              objectPosition: 'center center',
+              imageRendering: 'auto',
+              WebkitBackfaceVisibility: 'hidden',
+              backfaceVisibility: 'hidden',
+              transform: 'translateZ(0)'
+            }}
+            loading="eager"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-background" />
         </div>
 
         <motion.div 
