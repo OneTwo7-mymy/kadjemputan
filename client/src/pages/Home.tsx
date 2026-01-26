@@ -100,22 +100,32 @@ export default function Home() {
         />
       )}
       
-      <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
+      <div className="fixed bottom-6 left-6 z-50 flex items-center gap-3">
         {settings?.musicUrl && (
-          <Button
-            variant="outline"
-            size="icon"
-            className="bg-background/50 backdrop-blur-sm border-white/20 text-white hover:bg-white/20"
-            onClick={toggleMute}
-          >
-            {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-          </Button>
+          <div className="flex items-center gap-3 bg-background/50 backdrop-blur-md border border-white/20 p-2 rounded-full shadow-lg">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="w-10 h-10 rounded-full text-white hover:bg-white/20"
+              onClick={toggleMute}
+              data-testid="button-music-toggle"
+            >
+              {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5 animate-pulse" />}
+            </Button>
+            <span className="text-white text-xs font-medium pr-3 select-none">
+              {isMuted ? "Pasang Muzik" : "Muzik Latar"}
+            </span>
+          </div>
         )}
+      </div>
+
+      <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
         <Button 
           variant="outline" 
           size="sm" 
           className="bg-background/50 backdrop-blur-sm border-white/20 text-white hover:bg-white/20"
           onClick={() => window.location.href = "/admin/login"}
+          data-testid="link-admin-login"
         >
           Admin
         </Button>
