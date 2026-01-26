@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { useGuests, useDrawWinner, useResetDraw, useSettings, useUpdateSettings, useProgram, useUpdateProgram } from "@/hooks/use-guests";
+import { useGuests, useDrawWinner, useResetDraw, useSettings, useUpdateSettings, useProgram, useUpdateProgram, useBulkDeleteGuests } from "@/hooks/use-guests";
 import { Button } from "@/components/ui/button";
-import { Loader2, RefreshCw, Trophy, Users, LogOut, Search, UserCheck, UserX, Settings as SettingsIcon, Save, Plus, Trash2, List, Image as ImageIcon, Music } from "lucide-react";
+import { Loader2, RefreshCw, Trophy, Users, LogOut, Search, UserCheck, UserX, Settings as SettingsIcon, Save, Plus, Trash2, List, Image as ImageIcon, Music, CheckSquare, Square } from "lucide-react";
 import { useLocation } from "wouter";
 import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
@@ -40,6 +40,8 @@ export default function AdminDashboard() {
   const [drawState, setDrawState] = useState<"idle" | "rolling" | "winner">("idle");
   const [displayWinner, setDisplayWinner] = useState<Guest | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedGuests, setSelectedGuests] = useState<Set<number>>(new Set());
+  const bulkDeleteGuests = useBulkDeleteGuests();
   const rollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [pendingImage, setPendingImage] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -227,19 +229,88 @@ export default function AdminDashboard() {
 
           <TabsContent value="guests">
             <section className="bg-card rounded-xl border p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
                 <div><h3 className="font-display text-xl font-bold flex items-center gap-2"><Users className="w-5 h-5 text-primary" /> Senarai Tetamu</h3><p className="text-sm text-muted-foreground">Total: {guests?.length} RSVPs</p></div>
+                {selectedGuests.size > 0 && (
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
+                    onClick={() => {
+                      if (confirm(`Padam ${selectedGuests.size} tetamu yang dipilih?`)) {
+                        bulkDeleteGuests.mutate(Array.from(selectedGuests), {
+                          onSuccess: () => {
+                            toast({ title: "Berjaya", description: `${selectedGuests.size} tetamu telah dipadam.` });
+                            setSelectedGuests(new Set());
+                          },
+                          onError: (err) => toast({ title: "Ralat", description: err.message, variant: "destructive" }),
+                        });
+                      }
+                    }}
+                    disabled={bulkDeleteGuests.isPending}
+                    data-testid="button-delete-selected"
+                  >
+                    {bulkDeleteGuests.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Trash2 className="w-4 h-4 mr-2" />}
+                    Padam ({selectedGuests.size})
+                  </Button>
+                )}
               </div>
               <div className="relative mb-4">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input placeholder="Cari nama, telefon atau kod..." className="pl-9" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                <Input placeholder="Cari nama, telefon atau kod..." className="pl-9" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} data-testid="input-search-guests" />
               </div>
               <div className="border rounded-lg overflow-hidden">
                 <Table>
-                  <TableHeader className="bg-muted/50"><TableRow><TableHead>Nama</TableHead><TableHead>Status</TableHead><TableHead className="text-center">Pax</TableHead><TableHead className="text-right">Kod Untung</TableHead></TableRow></TableHeader>
+                  <TableHeader className="bg-muted/50">
+                    <TableRow>
+                      <TableHead className="w-12">
+                        <button
+                          onClick={() => {
+                            if (selectedGuests.size === filteredGuests.length && filteredGuests.length > 0) {
+                              setSelectedGuests(new Set());
+                            } else {
+                              setSelectedGuests(new Set(filteredGuests.map(g => g.id)));
+                            }
+                          }}
+                          className="p-1 hover:bg-muted rounded"
+                          data-testid="button-select-all"
+                        >
+                          {selectedGuests.size === filteredGuests.length && filteredGuests.length > 0 ? (
+                            <CheckSquare className="w-5 h-5 text-primary" />
+                          ) : (
+                            <Square className="w-5 h-5 text-muted-foreground" />
+                          )}
+                        </button>
+                      </TableHead>
+                      <TableHead>Nama</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-center">Pax</TableHead>
+                      <TableHead className="text-right">Kod Untung</TableHead>
+                    </TableRow>
+                  </TableHeader>
                   <TableBody>
                     {filteredGuests.map((guest) => (
-                      <TableRow key={guest.id}>
+                      <TableRow key={guest.id} className={selectedGuests.has(guest.id) ? "bg-primary/5" : ""}>
+                        <TableCell>
+                          <button
+                            onClick={() => {
+                              const newSelected = new Set(selectedGuests);
+                              if (newSelected.has(guest.id)) {
+                                newSelected.delete(guest.id);
+                              } else {
+                                newSelected.add(guest.id);
+                              }
+                              setSelectedGuests(newSelected);
+                            }}
+                            className="p-1 hover:bg-muted rounded"
+                            data-testid={`checkbox-guest-${guest.id}`}
+                          >
+                            {selectedGuests.has(guest.id) ? (
+                              <CheckSquare className="w-5 h-5 text-primary" />
+                            ) : (
+                              <Square className="w-5 h-5 text-muted-foreground" />
+                            )}
+                          </button>
+                        </TableCell>
                         <TableCell className="font-medium"><div>{guest.name}</div><div className="text-xs text-muted-foreground">{guest.phoneNumber}</div></TableCell>
                         <TableCell>
                           {guest.attendance === 'attending' && <Badge className="bg-green-100 text-green-700 hover:bg-green-100">Hadir</Badge>}

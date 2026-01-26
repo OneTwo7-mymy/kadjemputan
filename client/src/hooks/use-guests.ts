@@ -61,6 +61,38 @@ export function useResetDraw() {
   });
 }
 
+export function useDeleteGuest() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetch(`/api/guests/${id}`, {
+        method: 'DELETE',
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to delete guest");
+      return res.json();
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [api.guests.list.path] }),
+  });
+}
+
+export function useBulkDeleteGuests() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (ids: number[]) => {
+      const res = await fetch(api.guests.bulkDelete.path, {
+        method: api.guests.bulkDelete.method,
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids }),
+      });
+      if (!res.ok) throw new Error("Failed to delete guests");
+      return res.json();
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [api.guests.list.path] }),
+  });
+}
+
 // Settings
 export function useSettings() {
   return useQuery<Settings>({

@@ -54,6 +54,23 @@ export const api = {
         401: errorSchemas.unauthorized,
       },
     },
+    delete: {
+      method: 'DELETE' as const,
+      path: '/api/guests/:id',
+      responses: {
+        200: z.object({ message: z.string() }),
+        401: errorSchemas.unauthorized,
+      },
+    },
+    bulkDelete: {
+      method: 'POST' as const,
+      path: '/api/guests/bulk-delete',
+      input: z.object({ ids: z.array(z.number()) }),
+      responses: {
+        200: z.object({ message: z.string(), count: z.number() }),
+        401: errorSchemas.unauthorized,
+      },
+    },
   },
   settings: {
     get: {

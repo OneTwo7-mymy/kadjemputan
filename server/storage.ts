@@ -1,6 +1,6 @@
 import { users, guests, settings, programItems, type Guest, type InsertGuest, type Settings, type InsertSettings, type ProgramItem, type InsertProgramItem } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { pool } from "./db";
@@ -19,6 +19,8 @@ export interface IStorage {
   getGuests(): Promise<Guest[]>;
   getGuest(id: number): Promise<Guest | undefined>;
   createGuest(guest: InsertGuest): Promise<Guest>;
+  deleteGuest(id: number): Promise<void>;
+  deleteGuests(ids: number[]): Promise<void>;
   drawWinner(): Promise<Guest | undefined>;
   resetDraw(): Promise<void>;
 
@@ -69,6 +71,15 @@ export class DatabaseStorage implements IStorage {
     const luckyDrawCode = Math.random().toString(36).substring(2, 8).toUpperCase();
     const [guest] = await db.insert(guests).values({ ...insertGuest, luckyDrawCode }).returning();
     return guest;
+  }
+
+  async deleteGuest(id: number): Promise<void> {
+    await db.delete(guests).where(eq(guests.id, id));
+  }
+
+  async deleteGuests(ids: number[]): Promise<void> {
+    if (ids.length === 0) return;
+    await db.delete(guests).where(inArray(guests.id, ids));
   }
 
   async drawWinner(): Promise<Guest | undefined> {

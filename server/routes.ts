@@ -51,6 +51,28 @@ export async function registerRoutes(
     res.json({ message: "Draw has been reset." });
   });
 
+  app.delete('/api/guests/:id', isAuthenticated, async (req, res) => {
+    const id = parseInt(req.params.id);
+    await storage.deleteGuest(id);
+    res.json({ message: "Guest deleted successfully." });
+  });
+
+  app.post(api.guests.bulkDelete.path, isAuthenticated, async (req, res) => {
+    try {
+      const { ids } = api.guests.bulkDelete.input.parse(req.body);
+      await storage.deleteGuests(ids);
+      res.json({ message: "Guests deleted successfully.", count: ids.length });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({
+          message: err.errors[0].message,
+          field: err.errors[0].path.join('.'),
+        });
+      }
+      throw err;
+    }
+  });
+
   app.get(api.settings.get.path, async (req, res) => {
     const settings = await storage.getSettings();
     res.json(settings);
