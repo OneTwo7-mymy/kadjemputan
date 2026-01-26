@@ -12,10 +12,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { TicketCard } from "@/components/TicketCard";
 import { OrnamentalBorder } from "@/components/OrnamentalBorder";
-import { MapPin, Calendar, Clock, Loader2, Heart, ExternalLink, QrCode, List, Volume2, VolumeX } from "lucide-react";
+import { MapPin, Calendar, Clock, Loader2, Heart, ExternalLink, QrCode, List, Volume2, VolumeX, Settings2 } from "lucide-react";
 import { z } from "zod";
 import { QRCodeCanvas } from "qrcode.react";
 import { useEffect, useRef } from "react";
+import { Slider } from "@/components/ui/slider";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 const formSchema = insertGuestSchema.extend({
   attendance: z.enum(["attending", "maybe", "not_attending"]),
@@ -30,15 +32,23 @@ export default function Home() {
   const createGuest = useCreateGuest();
   const [successData, setSuccessData] = useState<{ name: string; code: string } | null>(null);
   const [isMuted, setIsMuted] = useState(false);
+  const [volume, setVolume] = useState([70]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     if (settings?.musicUrl && audioRef.current) {
+      audioRef.current.volume = volume[0] / 100;
       audioRef.current.play().catch(err => {
         console.log("Autoplay blocked by browser. User must interact first.", err);
       });
     }
   }, [settings?.musicUrl]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume[0] / 100;
+    }
+  }, [volume]);
 
   const toggleMute = () => {
     if (audioRef.current) {
@@ -112,9 +122,31 @@ export default function Home() {
             >
               {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5 animate-pulse" />}
             </Button>
-            <span className="text-white text-xs font-medium pr-3 select-none">
+            <span className="text-white text-xs font-medium select-none">
               {isMuted ? "Pasang Muzik" : "Muzik Latar"}
             </span>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full text-white hover:bg-white/20 mr-1">
+                  <Settings2 className="w-4 h-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent side="top" align="start" className="w-40 p-4 bg-background/80 backdrop-blur-md border-white/20">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-xs text-white">
+                    <span>Volume</span>
+                    <span>{volume[0]}%</span>
+                  </div>
+                  <Slider
+                    value={volume}
+                    onValueChange={setVolume}
+                    max={100}
+                    step={1}
+                    className="w-full"
+                  />
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         )}
       </div>
