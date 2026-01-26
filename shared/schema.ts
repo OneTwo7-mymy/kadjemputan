@@ -35,6 +35,14 @@ export const settings = pgTable("settings", {
   heroImageUrl: text("hero_image_url").notNull().default("https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=2000&auto=format&fit=crop"),
 });
 
+// Program Table
+export const programItems = pgTable("program_items", {
+  id: serial("id").primaryKey(),
+  time: text("time").notNull(),
+  activity: text("activity").notNull(),
+  order: integer("order").notNull().default(0),
+});
+
 // Schemas
 export const insertGuestSchema = createInsertSchema(guests).omit({ 
   id: true, 
@@ -45,9 +53,12 @@ export const insertGuestSchema = createInsertSchema(guests).omit({
 });
 
 export const insertSettingsSchema = createInsertSchema(settings).omit({ id: true });
+export const insertProgramItemSchema = createInsertSchema(programItems).omit({ id: true });
 
 // Types
 export type Guest = typeof guests.$inferSelect;
 export type InsertGuest = z.infer<typeof insertGuestSchema>;
 export type Settings = typeof settings.$inferSelect;
 export type InsertSettings = z.infer<typeof insertSettingsSchema>;
+export type ProgramItem = typeof programItems.$inferSelect;
+export type InsertProgramItem = z.infer<typeof insertProgramItemSchema>;

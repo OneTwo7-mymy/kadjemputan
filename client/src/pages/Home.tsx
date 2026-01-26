@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
 import { insertGuestSchema, type InsertGuest } from "@shared/schema";
-import { useCreateGuest, useSettings } from "@/hooks/use-guests";
+import { useCreateGuest, useSettings, useProgram } from "@/hooks/use-guests";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,7 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { TicketCard } from "@/components/TicketCard";
 import { OrnamentalBorder } from "@/components/OrnamentalBorder";
-import { MapPin, Calendar, Clock, Loader2, Heart, ExternalLink, QrCode } from "lucide-react";
+import { MapPin, Calendar, Clock, Loader2, Heart, ExternalLink, QrCode, List } from "lucide-react";
 import { z } from "zod";
 import { QRCodeCanvas } from "qrcode.react";
 
@@ -25,6 +25,7 @@ const formSchema = insertGuestSchema.extend({
 export default function Home() {
   const { toast } = useToast();
   const { data: settings, isLoading: isSettingsLoading } = useSettings();
+  const { data: program } = useProgram();
   const createGuest = useCreateGuest();
   const [successData, setSuccessData] = useState<{ name: string; code: string } | null>(null);
 
@@ -253,6 +254,38 @@ export default function Home() {
             </AnimatePresence>
           </div>
         </motion.div>
+
+        {/* Program Section */}
+        {program && program.length > 0 && (
+          <motion.section 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="bg-card rounded-2xl shadow-xl p-8 border border-border/50 mb-12"
+          >
+            <div className="flex flex-col items-center text-center mb-8">
+              <div className="inline-flex items-center justify-center p-3 bg-primary/10 rounded-full mb-4 text-primary">
+                <List className="w-8 h-8" />
+              </div>
+              <h2 className="font-display text-3xl font-bold text-primary mb-2">Atur Cara Majlis</h2>
+              <p className="text-muted-foreground">Jadual perjalanan majlis kita.</p>
+            </div>
+
+            <div className="max-w-md mx-auto space-y-4">
+              {program.map((item, idx) => (
+                <div key={idx} className="flex items-center gap-6 p-4 bg-muted/30 rounded-xl border border-border/50 group hover:bg-muted/50 transition-colors">
+                  <div className="flex flex-col items-center">
+                    <span className="text-primary font-display font-bold text-lg whitespace-nowrap">{item.time}</span>
+                    <div className="h-8 w-px bg-primary/20 group-last:hidden" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-foreground">{item.activity}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.section>
+        )}
 
         {/* Location Section with QR Code */}
         <motion.section 

@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { insertGuestSchema, guests, settings, insertSettingsSchema } from './schema';
-import type { Guest, InsertGuest, Settings, InsertSettings } from './schema';
+import { insertGuestSchema, guests, settings, insertSettingsSchema, programItems, insertProgramItemSchema } from './schema';
+import type { Guest, InsertGuest, Settings, InsertSettings, ProgramItem, InsertProgramItem } from './schema';
 
 export const errorSchemas = {
   validation: z.object({
@@ -73,6 +73,24 @@ export const api = {
       },
     },
   },
+  program: {
+    list: {
+      method: 'GET' as const,
+      path: '/api/program',
+      responses: {
+        200: z.array(z.custom<ProgramItem>()),
+      },
+    },
+    update: {
+      method: 'POST' as const,
+      path: '/api/program',
+      input: z.array(insertProgramItemSchema),
+      responses: {
+        200: z.array(z.custom<ProgramItem>()),
+        401: errorSchemas.unauthorized,
+      },
+    },
+  },
 };
 
 export function buildUrl(path: string, params?: Record<string, string | number>): string {
@@ -87,4 +105,4 @@ export function buildUrl(path: string, params?: Record<string, string | number>)
   return url;
 }
 
-export type { Guest, InsertGuest, Settings, InsertSettings };
+export type { Guest, InsertGuest, Settings, InsertSettings, ProgramItem, InsertProgramItem };

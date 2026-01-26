@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { useGuests, useDrawWinner, useResetDraw, useSettings, useUpdateSettings } from "@/hooks/use-guests";
+import { useGuests, useDrawWinner, useResetDraw, useSettings, useUpdateSettings, useProgram, useUpdateProgram } from "@/hooks/use-guests";
 import { Button } from "@/components/ui/button";
-import { Loader2, RefreshCw, Trophy, Users, LogOut, Search, UserCheck, UserX, Settings as SettingsIcon, Save } from "lucide-react";
+import { Loader2, RefreshCw, Trophy, Users, LogOut, Search, UserCheck, UserX, Settings as SettingsIcon, Save, Plus, Trash2, List } from "lucide-react";
 import { useLocation } from "wouter";
 import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
@@ -171,6 +171,7 @@ export default function AdminDashboard() {
             <TabsTrigger value="draw" className="flex-1 max-w-[200px] h-full"><Trophy className="w-4 h-4 mr-2" /> Cabutan</TabsTrigger>
             <TabsTrigger value="guests" className="flex-1 max-w-[200px] h-full"><Users className="w-4 h-4 mr-2" /> Tetamu</TabsTrigger>
             <TabsTrigger value="settings" className="flex-1 max-w-[200px] h-full"><SettingsIcon className="w-4 h-4 mr-2" /> Tetapan</TabsTrigger>
+            <TabsTrigger value="program" className="flex-1 max-w-[200px] h-full"><List className="w-4 h-4 mr-2" /> Atur Cara</TabsTrigger>
           </TabsList>
 
           <TabsContent value="draw" className="space-y-8">
@@ -251,7 +252,7 @@ export default function AdminDashboard() {
             </section>
           </TabsContent>
 
-          <TabsContent value="settings">
+          <TabsContent value="settings" className="space-y-8">
             <section className="bg-card rounded-xl border p-6 shadow-sm max-w-2xl mx-auto">
               <div className="flex items-center gap-3 mb-6">
                 <SettingsIcon className="w-6 h-6 text-primary" />
@@ -336,8 +337,76 @@ export default function AdminDashboard() {
               </Form>
             </section>
           </TabsContent>
+
+          <TabsContent value="program">
+            <ProgramManager />
+          </TabsContent>
         </Tabs>
       </main>
     </div>
+  );
+}
+
+function ProgramManager() {
+  const { data: program, isLoading } = useProgram();
+  const updateProgram = useUpdateProgram();
+  const { toast } = useToast();
+  const [items, setItems] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (program) setItems(program);
+  }, [program]);
+
+  const addItem = () => {
+    setItems([...items, { time: "", activity: "", order: items.length }]);
+  };
+
+  const removeItem = (index: number) => {
+    setItems(items.filter((_, i) => i !== index));
+  };
+
+  const updateItem = (index: number, field: string, value: string) => {
+    const newItems = [...items];
+    newItems[index] = { ...newItems[index], [field]: value };
+    setItems(newItems);
+  };
+
+  const handleSave = () => {
+    updateProgram.mutate(items, {
+      onSuccess: () => toast({ title: "Berjaya", description: "Atur cara telah dikemaskini." }),
+      onError: (err) => toast({ title: "Ralat", description: err.message, variant: "destructive" }),
+    });
+  };
+
+  if (isLoading) return <Loader2 className="w-8 h-8 animate-spin mx-auto" />;
+
+  return (
+    <section className="bg-card rounded-xl border p-6 shadow-sm max-w-3xl mx-auto">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="font-display text-xl font-bold flex items-center gap-2"><List className="w-5 h-5 text-primary" /> Susun Atur Cara Majlis</h3>
+        <Button onClick={addItem} size="sm" variant="outline"><Plus className="w-4 h-4 mr-2" /> Tambah Aktiviti</Button>
+      </div>
+      
+      <div className="space-y-4 mb-6">
+        {items.map((item, index) => (
+          <div key={index} className="flex gap-4 items-start p-4 bg-muted/30 rounded-lg border">
+            <div className="w-32">
+              <label className="text-xs font-semibold uppercase text-muted-foreground mb-1 block">Masa</label>
+              <Input value={item.time} onChange={(e) => updateItem(index, "time", e.target.value)} placeholder="Contoh: 11:30 AM" />
+            </div>
+            <div className="flex-1">
+              <label className="text-xs font-semibold uppercase text-muted-foreground mb-1 block">Aktiviti</label>
+              <Input value={item.activity} onChange={(e) => updateItem(index, "activity", e.target.value)} placeholder="Contoh: Jamuan Makan" />
+            </div>
+            <Button variant="ghost" size="icon" className="mt-6 text-destructive" onClick={() => removeItem(index)}><Trash2 className="w-4 h-4" /></Button>
+          </div>
+        ))}
+        {items.length === 0 && <p className="text-center py-8 text-muted-foreground italic">Tiada atur cara lagi. Klik 'Tambah Aktiviti' untuk mula.</p>}
+      </div>
+
+      <Button className="w-full" onClick={handleSave} disabled={updateProgram.isPending}>
+        {updateProgram.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />} Simpan Atur Cara
+      </Button>
+    </section>
   );
 }

@@ -1,16 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@shared/routes";
-import type { Guest, InsertGuest, Settings, InsertSettings } from "@shared/routes";
+import { apiRequest } from "@/lib/queryClient";
+import type { Guest, InsertGuest, Settings, InsertSettings, ProgramItem, InsertProgramItem } from "@shared/routes";
 
 // Guests
 export function useGuests() {
-  return useQuery({
+  return useQuery<Guest[]>({
     queryKey: [api.guests.list.path],
     queryFn: async () => {
       const res = await fetch(api.guests.list.path, { credentials: "include" });
       if (res.status === 401) throw new Error("Unauthorized");
       if (!res.ok) throw new Error("Failed to fetch guests");
-      return api.guests.list.responses[200].parse(await res.json());
+      return res.json();
     },
   });
 }
@@ -19,19 +20,8 @@ export function useCreateGuest() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: InsertGuest) => {
-      const res = await fetch(api.guests.create.path, {
-        method: api.guests.create.method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) {
-        if (res.status === 400) {
-          const error = await res.json();
-          throw new Error(error.message || "Validation failed");
-        }
-        throw new Error("Failed to submit RSVP");
-      }
-      return api.guests.create.responses[201].parse(await res.json());
+      const res = await apiRequest(api.guests.create.method, api.guests.create.path, data);
+      return res.json();
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: [api.guests.list.path] }),
   });
@@ -50,7 +40,7 @@ export function useDrawWinner() {
         if (res.status === 401) throw new Error("Unauthorized");
         throw new Error("Failed to draw winner");
       }
-      return api.guests.drawWinner.responses[200].parse(await res.json());
+      return res.json();
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: [api.guests.list.path] }),
   });
@@ -65,7 +55,7 @@ export function useResetDraw() {
         credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to reset draw");
-      return api.guests.resetDraw.responses[200].parse(await res.json());
+      return res.json();
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: [api.guests.list.path] }),
   });
@@ -73,12 +63,12 @@ export function useResetDraw() {
 
 // Settings
 export function useSettings() {
-  return useQuery({
+  return useQuery<Settings>({
     queryKey: [api.settings.get.path],
     queryFn: async () => {
       const res = await fetch(api.settings.get.path);
       if (!res.ok) throw new Error("Failed to fetch settings");
-      return api.settings.get.responses[200].parse(await res.json());
+      return res.json();
     },
   });
 }
@@ -87,15 +77,32 @@ export function useUpdateSettings() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: InsertSettings) => {
-      const res = await fetch(api.settings.update.path, {
-        method: api.settings.update.method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to update settings");
-      return api.settings.update.responses[200].parse(await res.json());
+      const res = await apiRequest(api.settings.update.method, api.settings.update.path, data);
+      return res.json();
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: [api.settings.get.path] }),
+  });
+}
+
+// Program
+export function useProgram() {
+  return useQuery<ProgramItem[]>({
+    queryKey: [api.program.list.path],
+    queryFn: async () => {
+      const res = await fetch(api.program.list.path);
+      if (!res.ok) throw new Error("Failed to fetch program");
+      return res.json();
+    },
+  });
+}
+
+export function useUpdateProgram() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (items: InsertProgramItem[]) => {
+      const res = await apiRequest(api.program.update.method, api.program.update.path, items);
+      return res.json();
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [api.program.list.path] }),
   });
 }

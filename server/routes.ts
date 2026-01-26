@@ -72,5 +72,26 @@ export async function registerRoutes(
     }
   });
 
+  app.get(api.program.list.path, async (req, res) => {
+    const items = await storage.getProgramItems();
+    res.json(items);
+  });
+
+  app.post(api.program.update.path, isAuthenticated, async (req, res) => {
+    try {
+      const input = api.program.update.input.parse(req.body);
+      const items = await storage.updateProgramItems(input);
+      res.json(items);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({
+          message: err.errors[0].message,
+          field: err.errors[0].path.join('.'),
+        });
+      }
+      throw err;
+    }
+  });
+
   return httpServer;
 }
