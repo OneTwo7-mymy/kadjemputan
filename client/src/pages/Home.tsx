@@ -417,7 +417,7 @@ export default function Home() {
       </main>
 
       <footer className="text-center py-10 text-muted-foreground text-sm font-medium relative z-10">
-        <p>© 2024 Majlis Akikah & Rumah Terbuka</p>
+        <p>{settings?.footerText}</p>
       </footer>
     </div>
   );

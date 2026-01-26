@@ -57,6 +57,7 @@ export default function AdminDashboard() {
       heroImageUrl: "",
       musicUrl: "",
       musicTitle: "",
+      footerText: "",
     },
   });
 
@@ -370,6 +371,13 @@ export default function AdminDashboard() {
                       <FormItem>
                         <FormLabel>Tajuk Muzik</FormLabel>
                         <FormControl><Input {...field} placeholder="Contoh: Lagu Akikah - Keluarga" /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="footerText" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Teks Footer (Bawah)</FormLabel>
+                        <FormControl><Input {...field} placeholder="Contoh: © 2024 Majlis Kami" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
