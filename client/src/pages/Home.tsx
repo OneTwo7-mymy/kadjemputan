@@ -181,12 +181,13 @@ export default function Home() {
 
       <div className="fixed inset-0 pointer-events-none bg-songket z-[-1]" />
 
-      <header className="relative w-full h-screen flex flex-col items-center justify-center text-center px-4 overflow-hidden">
+      <header className="relative w-full min-h-screen flex flex-col items-center justify-center text-center px-4 overflow-hidden py-20">
         <div className="absolute inset-0 z-0">
           <img 
             src={settings?.heroImageUrl || "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=2000&auto=format&fit=crop"} 
             alt="Hero Background" 
-            className="w-full h-full object-cover object-center"
+            className="w-full h-full object-cover"
+            style={{ objectPosition: 'center center' }}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-background" />
         </div>
