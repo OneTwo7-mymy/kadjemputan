@@ -124,6 +124,17 @@ export default function Home() {
             <span className="text-white text-xs font-medium select-none">
               {isMuted ? "Pasang Muzik" : "Muzik Latar"}
             </span>
+            {settings?.musicTitle && !isMuted && (
+              <div className="max-w-[120px] overflow-hidden whitespace-nowrap">
+                <motion.div
+                  animate={{ x: ["100%", "-100%"] }}
+                  transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                  className="text-[10px] text-white/80"
+                >
+                  {settings.musicTitle}
+                </motion.div>
+              </div>
+            )}
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full text-white hover:bg-white/20 mr-1">

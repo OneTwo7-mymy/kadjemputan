@@ -56,6 +56,7 @@ export default function AdminDashboard() {
       wazeUrl: "",
       heroImageUrl: "",
       musicUrl: "",
+      musicTitle: "",
     },
   });
 
@@ -364,6 +365,13 @@ export default function AdminDashboard() {
                     </div>
                     <FormField control={form.control} name="musicUrl" render={({ field }) => (
                       <FormItem><FormControl><Input {...field} placeholder="Atau masukkan URL audio..." /></FormControl><FormMessage /></FormItem>
+                    )} />
+                    <FormField control={form.control} name="musicTitle" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tajuk Muzik</FormLabel>
+                        <FormControl><Input {...field} placeholder="Contoh: Lagu Akikah - Keluarga" /></FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )} />
                   </div>
 

@@ -34,6 +34,7 @@ export const settings = pgTable("settings", {
   wazeUrl: text("waze_url").notNull().default("https://waze.com"),
   heroImageUrl: text("hero_image_url").notNull().default("https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=2000&auto=format&fit=crop"),
   musicUrl: text("music_url"),
+  musicTitle: text("music_title"),
 });
 
 // Program Table
