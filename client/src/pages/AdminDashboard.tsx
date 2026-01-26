@@ -26,6 +26,8 @@ import { ObjectUploader } from "@/components/ObjectUploader";
 import { useUpload } from "@/hooks/use-upload";
 import { Image as ImageIcon } from "lucide-react";
 
+import { ImageCropper } from "@/components/ImageCropper";
+
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -35,12 +37,14 @@ export default function AdminDashboard() {
   const updateSettings = useUpdateSettings();
   const drawWinner = useDrawWinner();
   const resetDraw = useResetDraw();
-  const { getUploadParameters } = useUpload();
+  const { getUploadParameters, uploadFile } = useUpload();
 
   const [drawState, setDrawState] = useState<"idle" | "rolling" | "winner">("idle");
   const [displayWinner, setDisplayWinner] = useState<Guest | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const rollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [pendingImage, setPendingImage] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<InsertSettings>({
     resolver: zodResolver(insertSettingsSchema),
@@ -286,21 +290,40 @@ export default function AdminDashboard() {
                           <img src={form.watch("heroImageUrl")} alt="Preview" className="w-full h-full object-cover" />
                         </div>
                       )}
-                      <ObjectUploader
-                        onGetUploadParameters={getUploadParameters}
-                        onComplete={(result) => {
-                          const file = result.successful[0];
-                          if (file && file.response?.body) {
-                            const { objectPath } = file.response.body as any;
-                            if (objectPath) {
-                              form.setValue("heroImageUrl", objectPath);
-                              toast({ title: "Berjaya", description: "Imej telah dimuat naik." });
-                            }
-                          }
+                      <input
+                        type="file"
+                        className="hidden"
+                        ref={fileInputRef}
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) setPendingImage(file);
                         }}
+                      />
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => fileInputRef.current?.click()}
                       >
                         <ImageIcon className="w-4 h-4 mr-2" /> Muat Naik Imej
-                      </ObjectUploader>
+                      </Button>
+
+                      {pendingImage && (
+                        <ImageCropper
+                          imageFile={pendingImage}
+                          aspectRatio={16/9}
+                          onCancel={() => setPendingImage(null)}
+                          onCropComplete={async (blob) => {
+                            const croppedFile = new File([blob], pendingImage.name, { type: "image/jpeg" });
+                            setPendingImage(null);
+                            const result = await uploadFile(croppedFile);
+                            if (result) {
+                              form.setValue("heroImageUrl", result.objectPath);
+                              toast({ title: "Berjaya", description: "Imej telah dipotong dan dimuat naik." });
+                            }
+                          }}
+                        />
+                      )}
                     </div>
                     <FormField control={form.control} name="heroImageUrl" render={({ field }) => (
                       <FormItem><FormControl><Input {...field} placeholder="Atau masukkan URL imej..." /></FormControl><FormMessage /></FormItem>
