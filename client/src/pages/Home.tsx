@@ -37,9 +37,15 @@ export default function Home() {
   useEffect(() => {
     if (settings?.musicUrl && audioRef.current) {
       audioRef.current.volume = volume[0] / 100;
-      audioRef.current.play().catch(err => {
-        console.log("Autoplay blocked by browser. User must interact first.", err);
-      });
+      const playAudio = () => {
+        audioRef.current?.play().catch(err => {
+          console.log("Autoplay blocked by browser. Waiting for interaction.", err);
+        });
+      };
+      playAudio();
+      // Also try playing on first user interaction as backup
+      window.addEventListener('click', playAudio, { once: true });
+      return () => window.removeEventListener('click', playAudio);
     }
   }, [settings?.musicUrl]);
 
