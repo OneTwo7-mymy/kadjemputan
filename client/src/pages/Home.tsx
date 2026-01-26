@@ -115,21 +115,21 @@ export default function Home() {
             <Button
               variant="ghost"
               size="icon"
-              className="w-10 h-10 rounded-full text-green-400 hover:bg-green-400/20 hover:text-green-300"
+              className="w-10 h-10 rounded-full text-primary hover:bg-primary/20 hover:text-primary/80"
               onClick={toggleMute}
               data-testid="button-music-toggle"
             >
               {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5 animate-pulse" />}
             </Button>
-            <span className="text-green-200 text-xs font-medium select-none">
+            <span className="text-primary text-xs font-medium select-none">
               {isMuted ? "Pasang Muzik" : "Muzik Latar"}
             </span>
             {settings?.musicTitle && !isMuted && (
-              <div className="max-w-[120px] overflow-hidden whitespace-nowrap border-l border-white/10 pl-2">
+              <div className="max-w-[120px] overflow-hidden whitespace-nowrap border-l border-primary/20 pl-2">
                 <motion.div
                   animate={{ x: ["100%", "-100%"] }}
                   transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                  className="text-[10px] text-green-100/80 italic"
+                  className="text-[10px] text-primary/80 italic"
                 >
                   {settings.musicTitle}
                 </motion.div>
@@ -137,13 +137,13 @@ export default function Home() {
             )}
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full text-green-400 hover:bg-green-400/20 mr-1">
+                <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full text-primary hover:bg-primary/20 mr-1">
                   <Settings2 className="w-4 h-4" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent side="top" align="start" className="w-40 p-4 bg-background/90 backdrop-blur-md border-green-400/20 shadow-2xl">
+              <PopoverContent side="top" align="start" className="w-40 p-4 bg-background/95 backdrop-blur-md border-primary/20 shadow-2xl">
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between text-xs text-green-200">
+                  <div className="flex items-center justify-between text-xs text-primary/80">
                     <span>Volume</span>
                     <span>{volume[0]}%</span>
                   </div>
@@ -152,7 +152,7 @@ export default function Home() {
                     onValueChange={setVolume}
                     max={100}
                     step={1}
-                    className="w-full [&_[role=slider]]:bg-green-400 [&_.relative]:bg-green-400/20 [&_[data-orientation=horizontal]]:bg-green-400"
+                    className="w-full [&_[role=slider]]:bg-primary [&_.relative]:bg-primary/20 [&_[data-orientation=horizontal]]:bg-primary"
                   />
                 </div>
               </PopoverContent>
