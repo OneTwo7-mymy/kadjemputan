@@ -218,7 +218,14 @@ export default function Home() {
         </motion.div>
       </header>
 
-      <main className="container max-w-4xl mx-auto px-4 -mt-20 relative z-20">
+      <main className="container max-w-4xl mx-auto px-4 -mt-32 relative z-20">
+        {/* Decorative section header */}
+        <div className="flex items-center justify-center gap-4 mb-6">
+          <div className="h-px w-16 bg-gradient-to-r from-transparent to-primary/60" />
+          <span className="text-primary font-display text-sm uppercase tracking-widest">Maklumat Majlis</span>
+          <div className="h-px w-16 bg-gradient-to-l from-transparent to-primary/60" />
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
           {[
             { icon: Calendar, label: "Tarikh", value: settings?.eventDate },
