@@ -68,9 +68,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createGuest(insertGuest: InsertGuest): Promise<Guest> {
-    const allGuests = await this.getGuests();
-    const nextNumber = allGuests.length + 1;
-    const luckyDrawCode = `H-${String(nextNumber).padStart(4, '0')}`;
+    const randomNumber = Math.floor(1000 + Math.random() * 9000);
+    const luckyDrawCode = `H-${randomNumber}`;
     const [guest] = await db.insert(guests).values({ ...insertGuest, luckyDrawCode }).returning();
     return guest;
   }
