@@ -84,8 +84,10 @@ export class ObjectStorageService {
 
   async getObjectEntityFile(objectPath: string): Promise<File> {
     const entityDir = this.getPrivateObjectDir();
-    const entityId = objectPath.split('/').pop();
-    if (!entityId || entityId === "objects" || entityId === "api") throw new ObjectNotFoundError();
+    // The path from req.path is e.g. /objects/uploads/uuid
+    // We need to extract everything after /objects/
+    const entityId = objectPath.replace(/^\/objects\//, "");
+    if (!entityId || entityId === objectPath) throw new ObjectNotFoundError();
 
     const { bucketName, objectName } = parseObjectPath(`${entityDir.endsWith('/') ? entityDir : entityDir + '/'}${entityId}`);
     const file = objectStorageClient.bucket(bucketName).file(objectName);
