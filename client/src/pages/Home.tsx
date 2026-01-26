@@ -296,8 +296,8 @@ export default function Home() {
                             <FormItem>
                               <FormLabel>Status Kehadiran</FormLabel>
                               <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl><SelectTrigger className="bg-background"><SelectValue placeholder="Pilih status" /></SelectTrigger></FormControl>
-                                <SelectContent>
+                                <FormControl><SelectTrigger className="bg-background relative z-20"><SelectValue placeholder="Pilih status" /></SelectTrigger></FormControl>
+                                <SelectContent className="z-[100] bg-white border shadow-xl">
                                   <SelectItem value="attending">Hadir</SelectItem>
                                   <SelectItem value="maybe">Mungkin</SelectItem>
                                   <SelectItem value="not_attending">Tidak Hadir</SelectItem>
