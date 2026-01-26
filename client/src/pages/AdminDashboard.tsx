@@ -22,6 +22,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertSettingsSchema, type InsertSettings, type Guest } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
+import { ObjectUploader } from "@/components/ObjectUploader";
+import { useUpload } from "@/hooks/use-upload";
+import { Image as ImageIcon } from "lucide-react";
 
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
@@ -32,6 +35,7 @@ export default function AdminDashboard() {
   const updateSettings = useUpdateSettings();
   const drawWinner = useDrawWinner();
   const resetDraw = useResetDraw();
+  const { getUploadParameters } = useUpload();
 
   const [drawState, setDrawState] = useState<"idle" | "rolling" | "winner">("idle");
   const [displayWinner, setDisplayWinner] = useState<Guest | null>(null);
@@ -42,11 +46,13 @@ export default function AdminDashboard() {
     resolver: zodResolver(insertSettingsSchema),
     defaultValues: {
       eventName: "",
+      familyName: "",
       eventDate: "",
       eventTime: "",
       locationName: "",
       googleMapsUrl: "",
       wazeUrl: "",
+      heroImageUrl: "",
     },
   });
 
@@ -272,6 +278,32 @@ export default function AdminDashboard() {
                   <FormField control={form.control} name="wazeUrl" render={({ field }) => (
                     <FormItem><FormLabel>URL Waze</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                   )} />
+                  <div className="space-y-4">
+                    <FormLabel>Imej Latar Belakang (Hero Image)</FormLabel>
+                    <div className="flex items-center gap-4">
+                      {form.watch("heroImageUrl") && (
+                        <div className="w-20 h-20 rounded-lg overflow-hidden border">
+                          <img src={form.watch("heroImageUrl")} alt="Preview" className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                      <ObjectUploader
+                        onGetUploadParameters={getUploadParameters}
+                        onComplete={(result) => {
+                          const url = result.successful[0]?.uploadURL;
+                          if (url) {
+                            const publicUrl = url.split('?')[0];
+                            form.setValue("heroImageUrl", publicUrl);
+                            toast({ title: "Berjaya", description: "Imej telah dimuat naik." });
+                          }
+                        }}
+                      >
+                        <ImageIcon className="w-4 h-4 mr-2" /> Muat Naik Imej
+                      </ObjectUploader>
+                    </div>
+                    <FormField control={form.control} name="heroImageUrl" render={({ field }) => (
+                      <FormItem><FormControl><Input {...field} placeholder="Atau masukkan URL imej..." /></FormControl><FormMessage /></FormItem>
+                    )} />
+                  </div>
                   <Button type="submit" className="w-full" disabled={updateSettings.isPending}>
                     {updateSettings.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />} Simpan Tetapan
                   </Button>

@@ -87,7 +87,7 @@ export default function Home() {
       <header className="relative w-full h-[60vh] min-h-[500px] flex items-center justify-center text-center px-4 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img 
-            src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=2000&auto=format&fit=crop" 
+            src={settings?.heroImageUrl || "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=2000&auto=format&fit=crop"} 
             alt="Hero Background" 
             className="w-full h-full object-cover"
           />

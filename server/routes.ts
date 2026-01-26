@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { api } from "@shared/routes";
 import { z } from "zod";
 import { setupAuth, registerAuthRoutes, isAuthenticated } from "./replit_integrations/auth";
+import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 import { seedDatabase } from "./seed";
 
 export async function registerRoutes(
@@ -14,6 +15,7 @@ export async function registerRoutes(
   await seedDatabase();
   await setupAuth(app);
   registerAuthRoutes(app);
+  registerObjectStorageRoutes(app);
 
   app.post(api.guests.create.path, async (req, res) => {
     try {
