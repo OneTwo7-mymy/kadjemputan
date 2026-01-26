@@ -186,7 +186,7 @@ export default function Home() {
           <img 
             src={settings?.heroImageUrl || "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=2000&auto=format&fit=crop"} 
             alt="Hero Background" 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-center"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-background" />
         </div>
@@ -200,13 +200,13 @@ export default function Home() {
           <p className="font-display italic text-lg md:text-xl text-yellow-200 tracking-wide">
             Assalamualaikum & Salam Sejahtera
           </p>
-          <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold leading-tight drop-shadow-lg flex flex-col gap-2">
+          <h1 className="font-display text-3xl md:text-5xl lg:text-6xl font-bold leading-tight drop-shadow-lg flex flex-col gap-1 md:gap-2">
             <span>{settings?.eventName}</span>
             {settings?.eventNameLine2 && <span>{settings.eventNameLine2}</span>}
           </h1>
           <div className="flex flex-col items-center gap-2 mt-4 font-body text-sm md:text-base opacity-90">
             {settings?.familyIntro && (
-              <p className="italic text-yellow-100/90 whitespace-pre-wrap max-w-lg">
+              <p className="italic text-yellow-100/90 whitespace-pre-wrap max-w-md text-xs md:text-sm">
                 {settings.familyIntro}
               </p>
             )}
