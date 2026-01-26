@@ -31,7 +31,7 @@ export default function Home() {
   const createGuest = useCreateGuest();
   const [successData, setSuccessData] = useState<{ name: string; code: string } | null>(null);
   const [isMuted, setIsMuted] = useState(false);
-  const [volume, setVolume] = useState([70]);
+  const [volume, setVolume] = useState([20]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
