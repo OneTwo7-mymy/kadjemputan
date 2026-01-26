@@ -115,21 +115,21 @@ export default function Home() {
             <Button
               variant="ghost"
               size="icon"
-              className="w-10 h-10 rounded-full text-white hover:bg-white/20"
+              className="w-10 h-10 rounded-full text-yellow-400 hover:bg-yellow-400/20 hover:text-yellow-300"
               onClick={toggleMute}
               data-testid="button-music-toggle"
             >
               {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5 animate-pulse" />}
             </Button>
-            <span className="text-white text-xs font-medium select-none">
+            <span className="text-yellow-200 text-xs font-medium select-none">
               {isMuted ? "Pasang Muzik" : "Muzik Latar"}
             </span>
             {settings?.musicTitle && !isMuted && (
-              <div className="max-w-[120px] overflow-hidden whitespace-nowrap">
+              <div className="max-w-[120px] overflow-hidden whitespace-nowrap border-l border-white/10 pl-2">
                 <motion.div
                   animate={{ x: ["100%", "-100%"] }}
                   transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                  className="text-[10px] text-white/80"
+                  className="text-[10px] text-yellow-100/80 italic"
                 >
                   {settings.musicTitle}
                 </motion.div>
@@ -137,13 +137,13 @@ export default function Home() {
             )}
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full text-white hover:bg-white/20 mr-1">
+                <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full text-yellow-400 hover:bg-yellow-400/20 mr-1">
                   <Settings2 className="w-4 h-4" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent side="top" align="start" className="w-40 p-4 bg-background/80 backdrop-blur-md border-white/20">
+              <PopoverContent side="top" align="start" className="w-40 p-4 bg-background/90 backdrop-blur-md border-yellow-400/20 shadow-2xl">
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between text-xs text-white">
+                  <div className="flex items-center justify-between text-xs text-yellow-200">
                     <span>Volume</span>
                     <span>{volume[0]}%</span>
                   </div>
@@ -152,7 +152,7 @@ export default function Home() {
                     onValueChange={setVolume}
                     max={100}
                     step={1}
-                    className="w-full"
+                    className="w-full [&_[role=slider]]:bg-yellow-400 [&_.relative]:bg-yellow-400/20 [&_[data-orientation=horizontal]]:bg-yellow-400"
                   />
                 </div>
               </PopoverContent>
