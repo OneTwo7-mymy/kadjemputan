@@ -289,11 +289,13 @@ export default function AdminDashboard() {
                       <ObjectUploader
                         onGetUploadParameters={getUploadParameters}
                         onComplete={(result) => {
-                          const url = result.successful[0]?.uploadURL;
-                          if (url) {
-                            const publicUrl = url.split('?')[0];
-                            form.setValue("heroImageUrl", publicUrl);
-                            toast({ title: "Berjaya", description: "Imej telah dimuat naik." });
+                          const file = result.successful[0];
+                          if (file && file.response?.body) {
+                            const { objectPath } = file.response.body as any;
+                            if (objectPath) {
+                              form.setValue("heroImageUrl", objectPath);
+                              toast({ title: "Berjaya", description: "Imej telah dimuat naik." });
+                            }
                           }
                         }}
                       >
