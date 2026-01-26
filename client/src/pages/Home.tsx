@@ -181,15 +181,15 @@ export default function Home() {
 
       <div className="fixed inset-0 pointer-events-none bg-songket z-[-1]" />
 
-      <header className="relative w-full h-[60vh] min-h-[500px] flex items-center justify-center text-center px-4 overflow-hidden">
-        <div className="absolute inset-0 z-0">
+    <header className="relative w-full h-[100vh] flex items-center justify-center text-center px-4 overflow-hidden">
+      <div className="absolute inset-0 z-0">
           <img 
             src={settings?.heroImageUrl || "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=2000&auto=format&fit=crop"} 
             alt="Hero Background" 
             className="w-full h-full object-cover object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-background" />
-        </div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-background" />
+      </div>
 
         <motion.div 
           initial={{ y: 20, opacity: 0 }}
