@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,7 +15,6 @@ import { OrnamentalBorder } from "@/components/OrnamentalBorder";
 import { MapPin, Calendar, Clock, Loader2, Heart, ExternalLink, QrCode, List, Volume2, VolumeX, Settings2 } from "lucide-react";
 import { z } from "zod";
 import { QRCodeCanvas } from "qrcode.react";
-import { useEffect, useRef } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
