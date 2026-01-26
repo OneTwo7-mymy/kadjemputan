@@ -181,38 +181,38 @@ export default function Home() {
 
       <div className="fixed inset-0 pointer-events-none bg-songket z-[-1]" />
 
-    <header className="relative w-full h-[100vh] flex items-center justify-center text-center px-4 overflow-hidden">
-      <div className="absolute inset-0 z-0">
+      <header className="relative w-full h-screen flex flex-col items-center justify-center text-center px-4 overflow-hidden">
+        <div className="absolute inset-0 z-0">
           <img 
             src={settings?.heroImageUrl || "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=2000&auto=format&fit=crop"} 
             alt="Hero Background" 
             className="w-full h-full object-cover object-center"
           />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-background" />
-      </div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-background" />
+        </div>
 
         <motion.div 
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8 }}
-          className="relative z-10 max-w-2xl mx-auto text-white space-y-6"
+          className="relative z-10 max-w-2xl mx-auto text-white space-y-4 md:space-y-6 flex flex-col items-center"
         >
-          <p className="font-display italic text-lg md:text-xl text-yellow-200 tracking-wide">
+          <p className="font-display italic text-lg md:text-xl text-yellow-200 tracking-wide drop-shadow-md">
             Assalamualaikum & Salam Sejahtera
           </p>
           <h1 className="font-display text-2xl md:text-4xl lg:text-5xl font-bold leading-tight drop-shadow-lg flex flex-wrap justify-center gap-x-2 gap-y-1">
             <span>{settings?.eventName}</span>
             {settings?.eventNameLine2 && <span>{settings.eventNameLine2}</span>}
           </h1>
-          <div className="flex flex-col items-center gap-2 mt-4 font-body text-sm md:text-base opacity-90">
+          <div className="flex flex-col items-center gap-2 mt-2 md:mt-4 font-body text-sm md:text-base opacity-90">
             {settings?.familyIntro && (
-              <p className="italic text-yellow-100/90 whitespace-pre-wrap max-w-md text-xs md:text-sm">
+              <p className="italic text-yellow-100/90 whitespace-pre-wrap max-w-md text-xs md:text-sm drop-shadow-md">
                 {settings.familyIntro}
               </p>
             )}
-            <p>Raikan Cinta & Kesyukuran Bersama Kami</p>
-            <div className="h-px w-20 bg-yellow-400/60 my-2" />
-            <p className="uppercase tracking-widest text-xs md:text-sm">{settings?.familyName}</p>
+            <p className="drop-shadow-md">Raikan Cinta & Kesyukuran Bersama Kami</p>
+            <div className="h-px w-20 bg-yellow-400/60 my-1 md:my-2" />
+            <p className="uppercase tracking-widest text-xs md:text-sm font-semibold drop-shadow-md">{settings?.familyName}</p>
           </div>
         </motion.div>
       </header>
