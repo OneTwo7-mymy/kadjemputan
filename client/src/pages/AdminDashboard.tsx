@@ -20,6 +20,7 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Textarea } from "@/components/ui/textarea";
 import { insertSettingsSchema, type InsertSettings, type Guest } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { useUpload } from "@/hooks/use-upload";
@@ -273,7 +274,17 @@ export default function AdminDashboard() {
                     <FormItem><FormLabel>Nama Keluarga (Tuan Rumah)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                   )} />
                   <FormField control={form.control} name="familyIntro" render={({ field }) => (
-                    <FormItem><FormLabel>Mukadimah Keluarga (Pilihan)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem>
+                      <FormLabel>Mukadimah Keluarga (Pilihan)</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          {...field} 
+                          className="min-h-[150px] resize-y" 
+                          placeholder="Masukkan mukadimah atau kata-kata aluan keluarga di sini..."
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )} />
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField control={form.control} name="eventDate" render={({ field }) => (

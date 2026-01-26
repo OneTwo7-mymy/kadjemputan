@@ -205,7 +205,11 @@ export default function Home() {
             {settings?.eventNameLine2 && <span>{settings.eventNameLine2}</span>}
           </h1>
           <div className="flex flex-col items-center gap-2 mt-4 font-body text-sm md:text-base opacity-90">
-            {settings?.familyIntro && <p className="italic text-yellow-100/90">{settings.familyIntro}</p>}
+            {settings?.familyIntro && (
+              <p className="italic text-yellow-100/90 whitespace-pre-wrap max-w-lg">
+                {settings.familyIntro}
+              </p>
+            )}
             <p>Raikan Cinta & Kesyukuran Bersama Kami</p>
             <div className="h-px w-20 bg-yellow-400/60 my-2" />
             <p className="uppercase tracking-widest text-xs md:text-sm">{settings?.familyName}</p>
