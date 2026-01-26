@@ -200,7 +200,7 @@ export default function Home() {
           <p className="font-display italic text-lg md:text-xl text-yellow-200 tracking-wide">
             Assalamualaikum & Salam Sejahtera
           </p>
-          <h1 className="font-display text-3xl md:text-5xl lg:text-6xl font-bold leading-tight drop-shadow-lg flex flex-col gap-1 md:gap-2">
+          <h1 className="font-display text-2xl md:text-4xl lg:text-5xl font-bold leading-tight drop-shadow-lg flex flex-wrap justify-center gap-x-2 gap-y-1">
             <span>{settings?.eventName}</span>
             {settings?.eventNameLine2 && <span>{settings.eventNameLine2}</span>}
           </h1>
