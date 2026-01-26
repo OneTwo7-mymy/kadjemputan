@@ -12,9 +12,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { TicketCard } from "@/components/TicketCard";
 import { OrnamentalBorder } from "@/components/OrnamentalBorder";
-import { MapPin, Calendar, Clock, Loader2, Heart, ExternalLink, QrCode, List } from "lucide-react";
+import { MapPin, Calendar, Clock, Loader2, Heart, ExternalLink, QrCode, List, Volume2, VolumeX } from "lucide-react";
 import { z } from "zod";
 import { QRCodeCanvas } from "qrcode.react";
+import { useEffect, useRef } from "react";
 
 const formSchema = insertGuestSchema.extend({
   attendance: z.enum(["attending", "maybe", "not_attending"]),
@@ -28,6 +29,23 @@ export default function Home() {
   const { data: program } = useProgram();
   const createGuest = useCreateGuest();
   const [successData, setSuccessData] = useState<{ name: string; code: string } | null>(null);
+  const [isMuted, setIsMuted] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    if (settings?.musicUrl && audioRef.current) {
+      audioRef.current.play().catch(err => {
+        console.log("Autoplay blocked by browser. User must interact first.", err);
+      });
+    }
+  }, [settings?.musicUrl]);
+
+  const toggleMute = () => {
+    if (audioRef.current) {
+      audioRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    }
+  };
 
   const form = useForm<InsertGuest>({
     resolver: zodResolver(formSchema),
@@ -72,7 +90,27 @@ export default function Home() {
 
   return (
     <div className="min-h-screen pb-20 overflow-x-hidden">
-      <div className="fixed top-4 right-4 z-50">
+      {settings?.musicUrl && (
+        <audio
+          ref={audioRef}
+          src={settings.musicUrl}
+          autoPlay
+          loop
+          className="hidden"
+        />
+      )}
+      
+      <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
+        {settings?.musicUrl && (
+          <Button
+            variant="outline"
+            size="icon"
+            className="bg-background/50 backdrop-blur-sm border-white/20 text-white hover:bg-white/20"
+            onClick={toggleMute}
+          >
+            {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+          </Button>
+        )}
         <Button 
           variant="outline" 
           size="sm" 

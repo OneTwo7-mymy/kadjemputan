@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useGuests, useDrawWinner, useResetDraw, useSettings, useUpdateSettings, useProgram, useUpdateProgram } from "@/hooks/use-guests";
 import { Button } from "@/components/ui/button";
-import { Loader2, RefreshCw, Trophy, Users, LogOut, Search, UserCheck, UserX, Settings as SettingsIcon, Save, Plus, Trash2, List } from "lucide-react";
+import { Loader2, RefreshCw, Trophy, Users, LogOut, Search, UserCheck, UserX, Settings as SettingsIcon, Save, Plus, Trash2, List, Image as ImageIcon, Music } from "lucide-react";
 import { useLocation } from "wouter";
 import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
@@ -22,10 +22,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertSettingsSchema, type InsertSettings, type Guest } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
-import { ObjectUploader } from "@/components/ObjectUploader";
 import { useUpload } from "@/hooks/use-upload";
-import { Image as ImageIcon } from "lucide-react";
-
 import { ImageCropper } from "@/components/ImageCropper";
 
 export default function AdminDashboard() {
@@ -37,7 +34,7 @@ export default function AdminDashboard() {
   const updateSettings = useUpdateSettings();
   const drawWinner = useDrawWinner();
   const resetDraw = useResetDraw();
-  const { getUploadParameters, uploadFile } = useUpload();
+  const { uploadFile } = useUpload();
 
   const [drawState, setDrawState] = useState<"idle" | "rolling" | "winner">("idle");
   const [displayWinner, setDisplayWinner] = useState<Guest | null>(null);
@@ -45,6 +42,7 @@ export default function AdminDashboard() {
   const rollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [pendingImage, setPendingImage] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const audioInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<InsertSettings>({
     resolver: zodResolver(insertSettingsSchema),
@@ -57,6 +55,7 @@ export default function AdminDashboard() {
       googleMapsUrl: "",
       wazeUrl: "",
       heroImageUrl: "",
+      musicUrl: "",
     },
   });
 
@@ -330,6 +329,44 @@ export default function AdminDashboard() {
                       <FormItem><FormControl><Input {...field} placeholder="Atau masukkan URL imej..." /></FormControl><FormMessage /></FormItem>
                     )} />
                   </div>
+
+                  <div className="space-y-4">
+                    <FormLabel>Muzik Latar (Audio File)</FormLabel>
+                    <div className="flex items-center gap-4">
+                      <input
+                        type="file"
+                        className="hidden"
+                        ref={audioInputRef}
+                        accept="audio/*"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const result = await uploadFile(file);
+                            if (result) {
+                              form.setValue("musicUrl", result.objectPath);
+                              toast({ title: "Berjaya", description: "Fail audio telah dimuat naik." });
+                            }
+                          }
+                        }}
+                      />
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => audioInputRef.current?.click()}
+                      >
+                        <Music className="w-4 h-4 mr-2" /> Muat Naik Audio
+                      </Button>
+                      {form.watch("musicUrl") && (
+                        <div className="text-xs text-muted-foreground truncate max-w-[200px]">
+                          {form.watch("musicUrl")}
+                        </div>
+                      )}
+                    </div>
+                    <FormField control={form.control} name="musicUrl" render={({ field }) => (
+                      <FormItem><FormControl><Input {...field} placeholder="Atau masukkan URL audio..." /></FormControl><FormMessage /></FormItem>
+                    )} />
+                  </div>
+
                   <Button type="submit" className="w-full" disabled={updateSettings.isPending}>
                     {updateSettings.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />} Simpan Tetapan
                   </Button>
