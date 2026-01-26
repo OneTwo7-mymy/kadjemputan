@@ -47,17 +47,19 @@ export default function AdminDashboard() {
   const form = useForm<InsertSettings>({
     resolver: zodResolver(insertSettingsSchema),
     defaultValues: {
-      eventName: "",
-      familyName: "",
-      eventDate: "",
-      eventTime: "",
-      locationName: "",
-      googleMapsUrl: "",
-      wazeUrl: "",
-      heroImageUrl: "",
-      musicUrl: "",
-      musicTitle: "",
-      footerText: "",
+      eventName: settings?.eventName || "",
+      eventNameLine2: settings?.eventNameLine2 || "",
+      familyName: settings?.familyName || "",
+      familyIntro: settings?.familyIntro || "",
+      eventDate: settings?.eventDate || "",
+      eventTime: settings?.eventTime || "",
+      locationName: settings?.locationName || "",
+      googleMapsUrl: settings?.googleMapsUrl || "",
+      wazeUrl: settings?.wazeUrl || "",
+      heroImageUrl: settings?.heroImageUrl || "",
+      musicUrl: settings?.musicUrl || "",
+      musicTitle: settings?.musicTitle || "",
+      footerText: settings?.footerText || "",
     },
   });
 
@@ -262,10 +264,16 @@ export default function AdminDashboard() {
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onUpdateSettings)} className="space-y-6">
                   <FormField control={form.control} name="eventName" render={({ field }) => (
-                    <FormItem><FormLabel>Nama Majlis</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>Nama Majlis (Baris 1)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <FormField control={form.control} name="eventNameLine2" render={({ field }) => (
+                    <FormItem><FormLabel>Nama Majlis (Baris 2 - Pilihan)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                   )} />
                   <FormField control={form.control} name="familyName" render={({ field }) => (
                     <FormItem><FormLabel>Nama Keluarga (Tuan Rumah)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <FormField control={form.control} name="familyIntro" render={({ field }) => (
+                    <FormItem><FormLabel>Mukadimah Keluarga (Pilihan)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                   )} />
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField control={form.control} name="eventDate" render={({ field }) => (

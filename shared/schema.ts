@@ -26,7 +26,9 @@ export const guests = pgTable("guests", {
 export const settings = pgTable("settings", {
   id: serial("id").primaryKey(),
   eventName: text("event_name").notNull().default("Rumah Terbuka & Akikah"),
+  eventNameLine2: text("event_name_line2"),
   familyName: text("family_name").notNull().default("Keluarga Hj. Ahmad & Hjh. Sarah"),
+  familyIntro: text("family_intro"),
   eventDate: text("event_date").notNull().default("Sabtu, 25 Nov 2024"),
   eventTime: text("event_time").notNull().default("11:00 PG - 4:00 PTG"),
   locationName: text("location_name").notNull().default("Dewan Seri Kenangan, KL"),

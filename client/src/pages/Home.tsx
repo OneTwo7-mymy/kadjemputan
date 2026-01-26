@@ -200,10 +200,12 @@ export default function Home() {
           <p className="font-display italic text-lg md:text-xl text-yellow-200 tracking-wide">
             Assalamualaikum & Salam Sejahtera
           </p>
-          <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold leading-tight drop-shadow-lg">
-            {settings?.eventName}
+          <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold leading-tight drop-shadow-lg flex flex-col gap-2">
+            <span>{settings?.eventName}</span>
+            {settings?.eventNameLine2 && <span>{settings.eventNameLine2}</span>}
           </h1>
           <div className="flex flex-col items-center gap-2 mt-4 font-body text-sm md:text-base opacity-90">
+            {settings?.familyIntro && <p className="italic text-yellow-100/90">{settings.familyIntro}</p>}
             <p>Raikan Cinta & Kesyukuran Bersama Kami</p>
             <div className="h-px w-20 bg-yellow-400/60 my-2" />
             <p className="uppercase tracking-widest text-xs md:text-sm">{settings?.familyName}</p>
