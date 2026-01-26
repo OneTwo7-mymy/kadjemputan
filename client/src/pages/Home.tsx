@@ -17,6 +17,7 @@ import { z } from "zod";
 import { QRCodeCanvas } from "qrcode.react";
 import { Slider } from "@/components/ui/slider";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import defaultHeroImage from "@/assets/images/hero-background.jpg";
 
 const formSchema = insertGuestSchema.extend({
   attendance: z.enum(["attending", "maybe", "not_attending"]),
@@ -184,7 +185,7 @@ export default function Home() {
       <header className="relative w-full min-h-screen flex flex-col items-center justify-center text-center px-4 overflow-hidden py-20">
         <div className="absolute inset-0 z-0">
           <img 
-            src={settings?.heroImageUrl || "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=2000&auto=format&fit=crop"} 
+            src={settings?.heroImageUrl || defaultHeroImage} 
             alt="Hero Background" 
             className="w-full h-full object-cover"
             style={{ 
