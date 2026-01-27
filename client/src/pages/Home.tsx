@@ -214,24 +214,26 @@ export default function Home() {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8 }}
-          className="relative z-10 max-w-2xl mx-auto text-white space-y-4 md:space-y-6 flex flex-col items-center"
+          className="relative z-10 max-w-2xl mx-auto space-y-4 md:space-y-6 flex flex-col items-center"
         >
-          <p className="font-display italic text-lg md:text-xl text-yellow-200 tracking-wide drop-shadow-md">
-            Assalamualaikum & Salam Sejahtera
-          </p>
-          <h1 className="font-display text-2xl md:text-4xl lg:text-5xl font-bold leading-tight drop-shadow-lg flex flex-wrap justify-center gap-x-2 gap-y-1">
-            <span>{settings?.eventName}</span>
-            {settings?.eventNameLine2 && <span>{settings.eventNameLine2}</span>}
-          </h1>
-          <div className="flex flex-col items-center gap-2 mt-2 md:mt-4 font-body text-sm md:text-base opacity-90">
-            {settings?.familyIntro && (
-              <p className="italic text-yellow-100/90 whitespace-pre-wrap max-w-md text-xs md:text-sm drop-shadow-md">
-                {settings.familyIntro}
-              </p>
-            )}
-            <p className="drop-shadow-md">Raikan Cinta & Kesyukuran Bersama Kami</p>
-            <div className="h-px w-20 bg-yellow-400/60 my-1 md:my-2" />
-            <p className="uppercase tracking-widest text-xs md:text-sm font-semibold drop-shadow-md">{settings?.familyName}</p>
+          <div className="bg-black/40 dark:bg-black/50 backdrop-blur-sm rounded-2xl px-6 py-8 md:px-10 md:py-10 text-white text-center space-y-4 md:space-y-6">
+            <p className="font-display italic text-lg md:text-xl text-yellow-200 tracking-wide" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
+              Assalamualaikum & Salam Sejahtera
+            </p>
+            <h1 className="font-display text-2xl md:text-4xl lg:text-5xl font-bold leading-tight flex flex-wrap justify-center gap-x-2 gap-y-1" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.6)' }}>
+              <span>{settings?.eventName}</span>
+              {settings?.eventNameLine2 && <span>{settings.eventNameLine2}</span>}
+            </h1>
+            <div className="flex flex-col items-center gap-2 mt-2 md:mt-4 font-body text-sm md:text-base opacity-95">
+              {settings?.familyIntro && (
+                <p className="italic text-yellow-100 whitespace-pre-wrap max-w-md text-xs md:text-sm" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>
+                  {settings.familyIntro}
+                </p>
+              )}
+              <p style={{ textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>Raikan Cinta & Kesyukuran Bersama Kami</p>
+              <div className="h-px w-20 bg-yellow-400/60 my-1 md:my-2" />
+              <p className="uppercase tracking-widest text-xs md:text-sm font-semibold" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>{settings?.familyName}</p>
+            </div>
           </div>
         </motion.div>
       </header>
