@@ -1,4 +1,4 @@
-import { users, guests, settings, programItems, type Guest, type InsertGuest, type Settings, type InsertSettings, type ProgramItem, type InsertProgramItem } from "@shared/schema";
+import { guests, settings, programItems, type Guest, type InsertGuest, type Settings, type InsertSettings, type ProgramItem, type InsertProgramItem } from "@shared/schema";
 import { db } from "./db";
 import { eq, inArray } from "drizzle-orm";
 import session from "express-session";
@@ -9,11 +9,6 @@ const PostgresSessionStore = connectPg(session);
 
 export interface IStorage {
   sessionStore: session.Store;
-  
-  // User operations
-  getUser(id: string): Promise<any | undefined>;
-  getUserByEmail(email: string): Promise<any | undefined>;
-  createUser(user: any): Promise<any>;
 
   // Guest operations
   getGuests(): Promise<Guest[]>;
@@ -41,21 +36,6 @@ export class DatabaseStorage implements IStorage {
       pool,
       createTableIfMissing: true,
     });
-  }
-
-  async getUser(id: string): Promise<any | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
-  }
-
-  async getUserByEmail(email: string): Promise<any | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.email, email));
-    return user;
-  }
-
-  async createUser(insertUser: any): Promise<any> {
-    const [user] = await db.insert(users).values(insertUser).returning();
-    return user;
   }
 
   async getGuests(): Promise<Guest[]> {

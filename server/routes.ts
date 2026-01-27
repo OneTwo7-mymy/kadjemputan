@@ -3,7 +3,7 @@ import type { Server } from "http";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
 import { z } from "zod";
-import { setupAuth, registerAuthRoutes, isAuthenticated } from "./replit_integrations/auth";
+import { setupAuth, isAuthenticated, authStorage } from "./replit_integrations/auth";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 import { seedDatabase } from "./seed";
 
@@ -14,7 +14,7 @@ export async function registerRoutes(
   
   await seedDatabase();
   await setupAuth(app);
-  registerAuthRoutes(app);
+  await authStorage.ensureDefaultAdmin();
   registerObjectStorageRoutes(app);
 
   app.post(api.guests.create.path, async (req, res) => {
@@ -52,7 +52,8 @@ export async function registerRoutes(
   });
 
   app.delete('/api/guests/:id', isAuthenticated, async (req, res) => {
-    const id = parseInt(req.params.id);
+    const idParam = req.params.id;
+    const id = parseInt(Array.isArray(idParam) ? idParam[0] : idParam);
     await storage.deleteGuest(id);
     res.json({ message: "Guest deleted successfully." });
   });

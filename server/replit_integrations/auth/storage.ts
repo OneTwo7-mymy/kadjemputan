@@ -1,31 +1,42 @@
-import { users, type User, type UpsertUser } from "@shared/models/auth";
+import { adminUsers, type AdminUser, type InsertAdminUser } from "@shared/models/auth";
 import { db } from "../../db";
 import { eq } from "drizzle-orm";
+import bcrypt from "bcryptjs";
 
 export interface IAuthStorage {
-  getUser(id: string): Promise<User | undefined>;
-  upsertUser(user: UpsertUser): Promise<User>;
+  getAdminByUsername(username: string): Promise<AdminUser | undefined>;
+  createAdmin(data: InsertAdminUser): Promise<AdminUser>;
+  ensureDefaultAdmin(): Promise<void>;
 }
 
 class AuthStorage implements IAuthStorage {
-  async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
+  async getAdminByUsername(username: string): Promise<AdminUser | undefined> {
+    const [admin] = await db
+      .select()
+      .from(adminUsers)
+      .where(eq(adminUsers.username, username));
+    return admin;
   }
 
-  async upsertUser(userData: UpsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(userData)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          ...userData,
-          updatedAt: new Date(),
-        },
-      })
+  async createAdmin(data: InsertAdminUser): Promise<AdminUser> {
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+    const [admin] = await db
+      .insert(adminUsers)
+      .values({ ...data, password: hashedPassword })
       .returning();
-    return user;
+    return admin;
+  }
+
+  async ensureDefaultAdmin(): Promise<void> {
+    const existingAdmin = await this.getAdminByUsername("admin");
+    if (!existingAdmin) {
+      await this.createAdmin({
+        username: "admin",
+        password: "admin123",
+        displayName: "Administrator",
+      });
+      console.log("Default admin user created (username: admin, password: admin123)");
+    }
   }
 }
 

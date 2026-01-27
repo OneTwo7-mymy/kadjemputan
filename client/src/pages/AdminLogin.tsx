@@ -1,14 +1,21 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { LogIn, ShieldCheck, ArrowLeft } from "lucide-react";
+import { LogIn, ShieldCheck, ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
 import { useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AdminLogin() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, login, isLoggingIn, loginError } = useAuth();
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
@@ -16,13 +23,35 @@ export default function AdminLogin() {
     }
   }, [isAuthenticated, isLoading, setLocation]);
 
+  useEffect(() => {
+    if (loginError) {
+      toast({
+        title: "Ralat",
+        description: "Nama pengguna atau kata laluan tidak sah.",
+        variant: "destructive",
+      });
+    }
+  }, [loginError, toast]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    login({ username, password }, {
+      onSuccess: () => {
+        setLocation("/admin/dashboard");
+      },
+    });
+  };
+
   if (isLoading) {
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/20 px-4 relative overflow-hidden">
-      {/* Decorative Background */}
       <div className="fixed inset-0 pointer-events-none bg-songket z-[-1] opacity-50" />
       
       <motion.div
@@ -42,25 +71,58 @@ export default function AdminLogin() {
               Sila log masuk untuk mengakses panel pengurusan majlis.
             </CardDescription>
           </CardHeader>
-          <CardContent className="px-8 pb-10 space-y-6">
-            <p className="text-sm text-center text-muted-foreground italic">
-              Akses ini adalah untuk urusetia majlis sahaja. Sila gunakan akaun Replit anda untuk meneruskan.
-            </p>
-            
-            <Button 
-              className="w-full h-14 text-lg font-bold gap-3 shadow-lg"
-              onClick={() => window.location.href = "/api/login"}
-            >
-              <LogIn className="w-5 h-5" /> Log Masuk Replit
-            </Button>
+          <CardContent className="px-8 pb-10">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="username">Nama Pengguna</Label>
+                <Input 
+                  id="username"
+                  type="text"
+                  placeholder="Masukkan nama pengguna"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  data-testid="input-username"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="password">Kata Laluan</Label>
+                <Input 
+                  id="password"
+                  type="password"
+                  placeholder="Masukkan kata laluan"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  data-testid="input-password"
+                />
+              </div>
+              
+              <Button 
+                type="submit"
+                className="w-full h-14 text-lg font-bold gap-3 shadow-lg"
+                disabled={isLoggingIn}
+                data-testid="button-login"
+              >
+                {isLoggingIn ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <LogIn className="w-5 h-5" />
+                )}
+                {isLoggingIn ? "Sedang Log Masuk..." : "Log Masuk"}
+              </Button>
 
-            <Button 
-              variant="ghost" 
-              className="w-full gap-2 text-muted-foreground"
-              onClick={() => setLocation("/")}
-            >
-              <ArrowLeft className="w-4 h-4" /> Kembali ke Laman Utama
-            </Button>
+              <Button 
+                type="button"
+                variant="ghost" 
+                className="w-full gap-2 text-muted-foreground"
+                onClick={() => setLocation("/")}
+                data-testid="button-back-home"
+              >
+                <ArrowLeft className="w-4 h-4" /> Kembali ke Laman Utama
+              </Button>
+            </form>
           </CardContent>
         </Card>
       </motion.div>

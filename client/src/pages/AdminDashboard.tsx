@@ -339,7 +339,7 @@ export default function AdminDashboard() {
                     <FormItem><FormLabel>Nama Majlis (Baris 1)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                   )} />
                   <FormField control={form.control} name="eventNameLine2" render={({ field }) => (
-                    <FormItem><FormLabel>Nama Majlis (Baris 2 - Pilihan)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>Nama Majlis (Baris 2 - Pilihan)</FormLabel><FormControl><Input {...field} value={field.value || ""} /></FormControl><FormMessage /></FormItem>
                   )} />
                   <FormField control={form.control} name="familyName" render={({ field }) => (
                     <FormItem><FormLabel>Nama Keluarga (Tuan Rumah)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
@@ -350,6 +350,7 @@ export default function AdminDashboard() {
                       <FormControl>
                         <Textarea 
                           {...field} 
+                          value={field.value || ""}
                           className="min-h-[150px] resize-y" 
                           placeholder="Masukkan mukadimah atau kata-kata aluan keluarga di sini..."
                         />
@@ -455,12 +456,12 @@ export default function AdminDashboard() {
                       )}
                     </div>
                     <FormField control={form.control} name="musicUrl" render={({ field }) => (
-                      <FormItem><FormControl><Input {...field} placeholder="Atau masukkan URL audio..." /></FormControl><FormMessage /></FormItem>
+                      <FormItem><FormControl><Input {...field} value={field.value || ""} placeholder="Atau masukkan URL audio..." /></FormControl><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="musicTitle" render={({ field }) => (
                       <FormItem>
                         <FormLabel>Tajuk Muzik</FormLabel>
-                        <FormControl><Input {...field} placeholder="Contoh: Lagu Akikah - Keluarga" /></FormControl>
+                        <FormControl><Input {...field} value={field.value || ""} placeholder="Contoh: Lagu Akikah - Keluarga" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
