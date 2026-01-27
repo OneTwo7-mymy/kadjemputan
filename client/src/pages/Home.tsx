@@ -195,9 +195,11 @@ export default function Home() {
               imageRendering: 'auto',
               WebkitBackfaceVisibility: 'hidden',
               backfaceVisibility: 'hidden',
-              transform: 'translateZ(0)'
+              transform: 'translate3d(0, 0, 0)',
+              willChange: 'transform',
             }}
             loading="eager"
+            decoding="async"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-background" />
         </div>
