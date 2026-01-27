@@ -189,9 +189,9 @@ export default function Home() {
           <img 
             src={settings?.heroImageUrl || defaultHeroImage} 
             alt="Hero Background" 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain md:object-cover"
             style={{ 
-              objectPosition: 'center center',
+              objectPosition: 'center top',
               imageRendering: 'auto',
               WebkitBackfaceVisibility: 'hidden',
               backfaceVisibility: 'hidden',
@@ -200,6 +200,12 @@ export default function Home() {
             }}
             loading="eager"
             decoding="async"
+          />
+          <div 
+            className="absolute inset-0 md:hidden"
+            style={{
+              background: 'linear-gradient(to bottom, transparent 60%, var(--background) 100%)'
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-background" />
         </div>
