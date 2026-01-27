@@ -12,7 +12,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { TicketCard } from "@/components/TicketCard";
 import { OrnamentalBorder } from "@/components/OrnamentalBorder";
-import { MapPin, Calendar, Clock, Loader2, Heart, ExternalLink, QrCode, List, Volume2, VolumeX, Settings2 } from "lucide-react";
+import { MapPin, Calendar, Clock, Loader2, Heart, ExternalLink, QrCode, List, Volume2, VolumeX, Settings2, Moon, Sun } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { z } from "zod";
 import { QRCodeCanvas } from "qrcode.react";
 import { Slider } from "@/components/ui/slider";
@@ -169,6 +170,7 @@ export default function Home() {
       </div>
 
       <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
+        <ThemeToggle />
         <Button 
           variant="outline" 
           size="sm" 

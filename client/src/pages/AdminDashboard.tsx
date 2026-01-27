@@ -1,8 +1,10 @@
 import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { useGuests, useDrawWinner, useResetDraw, useSettings, useUpdateSettings, useProgram, useUpdateProgram, useBulkDeleteGuests } from "@/hooks/use-guests";
+import { useGuests, useDrawWinner, useResetDraw, useSettings, useUpdateSettings, useProgram, useUpdateProgram, useBulkDeleteGuests, useAdminUsers, useCreateAdminUser, useDeleteAdminUser, useUpdateAdminPassword } from "@/hooks/use-guests";
 import { Button } from "@/components/ui/button";
-import { Loader2, RefreshCw, Trophy, Users, LogOut, Search, UserCheck, UserX, Settings as SettingsIcon, Save, Plus, Trash2, List, Image as ImageIcon, Music, CheckSquare, Square } from "lucide-react";
+import { Loader2, RefreshCw, Trophy, Users, LogOut, Search, UserCheck, UserX, Settings as SettingsIcon, Save, Plus, Trash2, List, Image as ImageIcon, Music, CheckSquare, Square, Shield, Key, UserPlus, ToggleLeft, ToggleRight } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { useLocation } from "wouter";
 import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
@@ -63,6 +65,7 @@ export default function AdminDashboard() {
       musicUrl: settings?.musicUrl || "",
       musicTitle: settings?.musicTitle || "",
       footerText: settings?.footerText || "",
+      luckyDrawEnabled: settings?.luckyDrawEnabled ?? true,
     },
   });
 
@@ -173,11 +176,12 @@ export default function AdminDashboard() {
 
       <main className="container mx-auto px-4 py-8 max-w-7xl">
         <Tabs defaultValue="draw" className="space-y-8">
-          <TabsList className="bg-card border w-full justify-start h-12 p-1">
-            <TabsTrigger value="draw" className="flex-1 max-w-[200px] h-full"><Trophy className="w-4 h-4 mr-2" /> Cabutan</TabsTrigger>
-            <TabsTrigger value="guests" className="flex-1 max-w-[200px] h-full"><Users className="w-4 h-4 mr-2" /> Tetamu</TabsTrigger>
-            <TabsTrigger value="settings" className="flex-1 max-w-[200px] h-full"><SettingsIcon className="w-4 h-4 mr-2" /> Tetapan</TabsTrigger>
-            <TabsTrigger value="program" className="flex-1 max-w-[200px] h-full"><List className="w-4 h-4 mr-2" /> Atur Cara</TabsTrigger>
+          <TabsList className="bg-card border w-full justify-start h-12 p-1 flex-wrap">
+            <TabsTrigger value="draw" className="flex-1 max-w-[180px] h-full"><Trophy className="w-4 h-4 mr-2" /> Cabutan</TabsTrigger>
+            <TabsTrigger value="guests" className="flex-1 max-w-[180px] h-full"><Users className="w-4 h-4 mr-2" /> Tetamu</TabsTrigger>
+            <TabsTrigger value="settings" className="flex-1 max-w-[180px] h-full"><SettingsIcon className="w-4 h-4 mr-2" /> Tetapan</TabsTrigger>
+            <TabsTrigger value="program" className="flex-1 max-w-[180px] h-full"><List className="w-4 h-4 mr-2" /> Atur Cara</TabsTrigger>
+            <TabsTrigger value="admin" className="flex-1 max-w-[180px] h-full"><Shield className="w-4 h-4 mr-2" /> Admin</TabsTrigger>
           </TabsList>
 
           <TabsContent value="draw" className="space-y-8">
@@ -474,6 +478,26 @@ export default function AdminDashboard() {
                     )} />
                   </div>
 
+                  <div className="border-t pt-6">
+                    <FormField control={form.control} name="luckyDrawEnabled" render={({ field }) => (
+                      <FormItem className="flex items-center justify-between rounded-lg border p-4 bg-muted/30">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base font-semibold flex items-center gap-2">
+                            <Trophy className="w-4 h-4 text-accent" /> Cabutan Bertuah
+                          </FormLabel>
+                          <p className="text-sm text-muted-foreground">Hidupkan atau matikan cabutan bertuah untuk tetamu</p>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            data-testid="switch-lucky-draw"
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )} />
+                  </div>
+
                   <Button type="submit" className="w-full" disabled={updateSettings.isPending}>
                     {updateSettings.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />} Simpan Tetapan
                   </Button>
@@ -484,6 +508,10 @@ export default function AdminDashboard() {
 
           <TabsContent value="program">
             <ProgramManager />
+          </TabsContent>
+
+          <TabsContent value="admin">
+            <AdminUserManager />
           </TabsContent>
         </Tabs>
       </main>
@@ -551,6 +579,166 @@ function ProgramManager() {
       <Button className="w-full" onClick={handleSave} disabled={updateProgram.isPending}>
         {updateProgram.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />} Simpan Atur Cara
       </Button>
+    </section>
+  );
+}
+
+function AdminUserManager() {
+  const { data: admins, isLoading } = useAdminUsers();
+  const createAdmin = useCreateAdminUser();
+  const deleteAdmin = useDeleteAdminUser();
+  const updatePassword = useUpdateAdminPassword();
+  const { toast } = useToast();
+  
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newUsername, setNewUsername] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [newDisplayName, setNewDisplayName] = useState("");
+  const [editingPasswordId, setEditingPasswordId] = useState<number | null>(null);
+  const [newPasswordValue, setNewPasswordValue] = useState("");
+
+  const handleCreate = async () => {
+    if (!newUsername || !newPassword) {
+      toast({ title: "Ralat", description: "Sila isi nama pengguna dan kata laluan", variant: "destructive" });
+      return;
+    }
+    try {
+      await createAdmin.mutateAsync({ username: newUsername, password: newPassword, displayName: newDisplayName || undefined });
+      toast({ title: "Berjaya", description: "Admin baru telah ditambah." });
+      setNewUsername("");
+      setNewPassword("");
+      setNewDisplayName("");
+      setShowAddForm(false);
+    } catch (err: any) {
+      toast({ title: "Ralat", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!window.confirm("Adakah anda pasti mahu memadam admin ini?")) return;
+    try {
+      await deleteAdmin.mutateAsync(id);
+      toast({ title: "Berjaya", description: "Admin telah dipadam." });
+    } catch (err: any) {
+      toast({ title: "Ralat", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleUpdatePassword = async (id: number) => {
+    if (!newPasswordValue || newPasswordValue.length < 6) {
+      toast({ title: "Ralat", description: "Kata laluan mestilah sekurang-kurangnya 6 aksara", variant: "destructive" });
+      return;
+    }
+    try {
+      await updatePassword.mutateAsync({ id, password: newPasswordValue });
+      toast({ title: "Berjaya", description: "Kata laluan telah dikemaskini." });
+      setEditingPasswordId(null);
+      setNewPasswordValue("");
+    } catch (err: any) {
+      toast({ title: "Ralat", description: err.message, variant: "destructive" });
+    }
+  };
+
+  if (isLoading) return <Loader2 className="w-8 h-8 animate-spin mx-auto" />;
+
+  return (
+    <section className="bg-card rounded-xl border p-6 shadow-sm max-w-3xl mx-auto">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="font-display text-xl font-bold flex items-center gap-2"><Shield className="w-5 h-5 text-primary" /> Pengurusan Admin</h3>
+        <Button onClick={() => setShowAddForm(!showAddForm)} size="sm" variant={showAddForm ? "secondary" : "outline"}>
+          <UserPlus className="w-4 h-4 mr-2" /> {showAddForm ? "Batal" : "Tambah Admin"}
+        </Button>
+      </div>
+
+      {showAddForm && (
+        <div className="mb-6 p-4 bg-muted/30 rounded-lg border space-y-4">
+          <h4 className="font-semibold text-sm">Tambah Admin Baru</h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Input
+              placeholder="Nama Pengguna"
+              value={newUsername}
+              onChange={(e) => setNewUsername(e.target.value)}
+              data-testid="input-new-admin-username"
+            />
+            <Input
+              type="password"
+              placeholder="Kata Laluan"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              data-testid="input-new-admin-password"
+            />
+            <Input
+              placeholder="Nama Paparan (Pilihan)"
+              value={newDisplayName}
+              onChange={(e) => setNewDisplayName(e.target.value)}
+              data-testid="input-new-admin-display-name"
+            />
+          </div>
+          <Button onClick={handleCreate} disabled={createAdmin.isPending} className="w-full" data-testid="button-create-admin">
+            {createAdmin.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <UserPlus className="w-4 h-4 mr-2" />}
+            Tambah Admin
+          </Button>
+        </div>
+      )}
+
+      <div className="space-y-3">
+        {admins?.map((admin) => (
+          <div key={admin.id} className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold">
+                {(admin.displayName || admin.username).charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <p className="font-medium">{admin.displayName || admin.username}</p>
+                <p className="text-xs text-muted-foreground">@{admin.username}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {editingPasswordId === admin.id ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="password"
+                    placeholder="Kata laluan baru"
+                    value={newPasswordValue}
+                    onChange={(e) => setNewPasswordValue(e.target.value)}
+                    className="w-40"
+                    data-testid={`input-password-${admin.id}`}
+                  />
+                  <Button size="sm" onClick={() => handleUpdatePassword(admin.id)} disabled={updatePassword.isPending}>
+                    <Save className="w-4 h-4" />
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => { setEditingPasswordId(null); setNewPasswordValue(""); }}>
+                    Batal
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setEditingPasswordId(admin.id)}
+                    data-testid={`button-change-password-${admin.id}`}
+                  >
+                    <Key className="w-4 h-4 mr-1" /> Tukar Kata Laluan
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-destructive hover:text-destructive"
+                    onClick={() => handleDelete(admin.id)}
+                    data-testid={`button-delete-admin-${admin.id}`}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+        ))}
+        {(!admins || admins.length === 0) && (
+          <p className="text-center py-8 text-muted-foreground italic">Tiada admin. Klik 'Tambah Admin' untuk mula.</p>
+        )}
+      </div>
     </section>
   );
 }

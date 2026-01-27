@@ -116,5 +116,74 @@ export async function registerRoutes(
     }
   });
 
+  // Admin user management routes
+  app.get(api.admin.list.path, isAuthenticated, async (req, res) => {
+    const admins = await authStorage.getAllAdmins();
+    res.json(admins.map(a => ({
+      id: a.id,
+      username: a.username,
+      displayName: a.displayName,
+      createdAt: a.createdAt,
+    })));
+  });
+
+  app.post(api.admin.create.path, isAuthenticated, async (req, res) => {
+    try {
+      const input = api.admin.create.input.parse(req.body);
+      const existingAdmin = await authStorage.getAdminByUsername(input.username);
+      if (existingAdmin) {
+        return res.status(400).json({ message: "Username already exists" });
+      }
+      const admin = await authStorage.createAdmin({
+        username: input.username,
+        password: input.password,
+        displayName: input.displayName || null,
+      });
+      res.status(201).json({
+        id: admin.id,
+        username: admin.username,
+        displayName: admin.displayName,
+      });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({
+          message: err.errors[0].message,
+          field: err.errors[0].path.join('.'),
+        });
+      }
+      throw err;
+    }
+  });
+
+  app.delete('/api/admin/users/:id', isAuthenticated, async (req, res) => {
+    const idParam = req.params.id;
+    const id = parseInt(Array.isArray(idParam) ? idParam[0] : idParam);
+    
+    const admins = await authStorage.getAllAdmins();
+    if (admins.length <= 1) {
+      return res.status(400).json({ message: "Cannot delete the last admin user" });
+    }
+    
+    await authStorage.deleteAdmin(id);
+    res.json({ message: "Admin user deleted successfully" });
+  });
+
+  app.post('/api/admin/users/:id/password', isAuthenticated, async (req, res) => {
+    try {
+      const idParam = req.params.id;
+      const id = parseInt(Array.isArray(idParam) ? idParam[0] : idParam);
+      const { password } = req.body;
+      
+      if (!password || password.length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters" });
+      }
+      
+      await authStorage.updateAdminPassword(id, password);
+      res.json({ message: "Password updated successfully" });
+    } catch (err) {
+      throw err;
+    }
+  });
+
   return httpServer;
 }

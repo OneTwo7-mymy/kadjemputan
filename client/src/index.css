@@ -39,6 +39,64 @@
   --font-body: 'DM Sans', sans-serif;
   --font-display: 'Playfair Display', serif;
   --font-handwriting: 'Great Vibes', cursive;
+
+  /* Secondary colors */
+  --secondary: 35 20% 90%;
+  --secondary-foreground: 143 40% 15%;
+  
+  /* Popover */
+  --popover: 0 0% 100%;
+  --popover-foreground: 143 40% 15%;
+  
+  /* Sidebar */
+  --sidebar-background: 143 50% 18%;
+  --sidebar-foreground: 45 60% 95%;
+  --sidebar-primary: 45 60% 50%;
+  --sidebar-primary-foreground: 143 50% 15%;
+  --sidebar-accent: 143 40% 25%;
+  --sidebar-accent-foreground: 45 60% 95%;
+  --sidebar-border: 143 40% 25%;
+  --sidebar-ring: 45 60% 50%;
+}
+
+.dark {
+  /* Dark Theme - Elegant Night */
+  --primary: 143 45% 35%;
+  --primary-foreground: 45 60% 95%;
+  
+  --accent: 45 55% 55%;
+  --accent-foreground: 143 50% 10%;
+  
+  --background: 143 20% 8%;
+  --foreground: 45 30% 90%;
+  
+  --muted: 143 15% 15%;
+  --muted-foreground: 45 20% 60%;
+  
+  --card: 143 20% 12%;
+  --card-foreground: 45 30% 90%;
+  
+  --border: 143 15% 20%;
+  --input: 143 15% 20%;
+  
+  --destructive: 0 60% 45%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 45 55% 55%;
+
+  --secondary: 143 15% 18%;
+  --secondary-foreground: 45 30% 90%;
+  
+  --popover: 143 20% 12%;
+  --popover-foreground: 45 30% 90%;
+  
+  --sidebar-background: 143 25% 6%;
+  --sidebar-foreground: 45 60% 90%;
+  --sidebar-primary: 45 55% 55%;
+  --sidebar-primary-foreground: 143 50% 10%;
+  --sidebar-accent: 143 20% 15%;
+  --sidebar-accent-foreground: 45 60% 90%;
+  --sidebar-border: 143 15% 18%;
+  --sidebar-ring: 45 55% 55%;
 }
 
 @layer base {

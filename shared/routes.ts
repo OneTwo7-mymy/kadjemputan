@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { insertGuestSchema, guests, settings, insertSettingsSchema, programItems, insertProgramItemSchema } from './schema';
-import type { Guest, InsertGuest, Settings, InsertSettings, ProgramItem, InsertProgramItem } from './schema';
+import { insertGuestSchema, guests, settings, insertSettingsSchema, programItems, insertProgramItemSchema, insertAdminUserSchema } from './schema';
+import type { Guest, InsertGuest, Settings, InsertSettings, ProgramItem, InsertProgramItem, AdminUser, InsertAdminUser } from './schema';
 
 export const errorSchemas = {
   validation: z.object({
@@ -104,6 +104,58 @@ export const api = {
       input: z.array(insertProgramItemSchema),
       responses: {
         200: z.array(z.custom<ProgramItem>()),
+        401: errorSchemas.unauthorized,
+      },
+    },
+  },
+  admin: {
+    list: {
+      method: 'GET' as const,
+      path: '/api/admin/users',
+      responses: {
+        200: z.array(z.object({
+          id: z.number(),
+          username: z.string(),
+          displayName: z.string().nullable(),
+          createdAt: z.date().nullable(),
+        })),
+        401: errorSchemas.unauthorized,
+      },
+    },
+    create: {
+      method: 'POST' as const,
+      path: '/api/admin/users',
+      input: z.object({
+        username: z.string().min(3, "Username must be at least 3 characters"),
+        password: z.string().min(6, "Password must be at least 6 characters"),
+        displayName: z.string().optional(),
+      }),
+      responses: {
+        201: z.object({
+          id: z.number(),
+          username: z.string(),
+          displayName: z.string().nullable(),
+        }),
+        400: errorSchemas.validation,
+        401: errorSchemas.unauthorized,
+      },
+    },
+    delete: {
+      method: 'DELETE' as const,
+      path: '/api/admin/users/:id',
+      responses: {
+        200: z.object({ message: z.string() }),
+        401: errorSchemas.unauthorized,
+      },
+    },
+    updatePassword: {
+      method: 'POST' as const,
+      path: '/api/admin/users/:id/password',
+      input: z.object({
+        password: z.string().min(6, "Password must be at least 6 characters"),
+      }),
+      responses: {
+        200: z.object({ message: z.string() }),
         401: errorSchemas.unauthorized,
       },
     },

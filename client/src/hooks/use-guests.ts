@@ -138,3 +138,74 @@ export function useUpdateProgram() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: [api.program.list.path] }),
   });
 }
+
+// Admin Users
+interface AdminUser {
+  id: number;
+  username: string;
+  displayName: string | null;
+  createdAt: Date | null;
+}
+
+export function useAdminUsers() {
+  return useQuery<AdminUser[]>({
+    queryKey: [api.admin.list.path],
+    queryFn: async () => {
+      const res = await fetch(api.admin.list.path, { credentials: "include" });
+      if (res.status === 401) throw new Error("Unauthorized");
+      if (!res.ok) throw new Error("Failed to fetch admin users");
+      return res.json();
+    },
+  });
+}
+
+export function useCreateAdminUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: { username: string; password: string; displayName?: string }) => {
+      const res = await apiRequest("POST", api.admin.create.path, data);
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || "Failed to create admin user");
+      }
+      return res.json();
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [api.admin.list.path] }),
+  });
+}
+
+export function useDeleteAdminUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetch(`/api/admin/users/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || "Failed to delete admin user");
+      }
+      return res.json();
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [api.admin.list.path] }),
+  });
+}
+
+export function useUpdateAdminPassword() {
+  return useMutation({
+    mutationFn: async ({ id, password }: { id: number; password: string }) => {
+      const res = await fetch(`/api/admin/users/${id}/password`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || "Failed to update password");
+      }
+      return res.json();
+    },
+  });
+}

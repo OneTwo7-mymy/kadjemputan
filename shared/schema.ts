@@ -38,6 +38,7 @@ export const settings = pgTable("settings", {
   musicUrl: text("music_url"),
   musicTitle: text("music_title"),
   footerText: text("footer_text").notNull().default("© 2024 Majlis Akikah & Rumah Terbuka"),
+  luckyDrawEnabled: boolean("lucky_draw_enabled").notNull().default(true),
 });
 
 // Program Table
