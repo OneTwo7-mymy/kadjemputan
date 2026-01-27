@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useGuests, useDrawWinner, useResetDraw, useSettings, useUpdateSettings, useProgram, useUpdateProgram, useBulkDeleteGuests, useAdminUsers, useCreateAdminUser, useDeleteAdminUser, useUpdateAdminPassword } from "@/hooks/use-guests";
 import { Button } from "@/components/ui/button";
-import { Loader2, RefreshCw, Trophy, Users, LogOut, Search, UserCheck, UserX, Settings as SettingsIcon, Save, Plus, Trash2, List, Image as ImageIcon, Music, CheckSquare, Square, Shield, Key, UserPlus, ToggleLeft, ToggleRight } from "lucide-react";
+import { Loader2, RefreshCw, Trophy, Users, LogOut, Search, UserCheck, UserX, Settings as SettingsIcon, Save, Plus, Trash2, List, Image as ImageIcon, Music, CheckSquare, Square, Shield, Key, UserPlus, ToggleLeft, ToggleRight, MessageSquare } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useLocation } from "wouter";
@@ -177,11 +177,12 @@ export default function AdminDashboard() {
       <main className="container mx-auto px-4 py-8 max-w-7xl">
         <Tabs defaultValue="draw" className="space-y-8">
           <TabsList className="bg-card border w-full justify-start h-12 p-1 flex-wrap">
-            <TabsTrigger value="draw" className="flex-1 max-w-[180px] h-full"><Trophy className="w-4 h-4 mr-2" /> Cabutan</TabsTrigger>
-            <TabsTrigger value="guests" className="flex-1 max-w-[180px] h-full"><Users className="w-4 h-4 mr-2" /> Tetamu</TabsTrigger>
-            <TabsTrigger value="settings" className="flex-1 max-w-[180px] h-full"><SettingsIcon className="w-4 h-4 mr-2" /> Tetapan</TabsTrigger>
-            <TabsTrigger value="program" className="flex-1 max-w-[180px] h-full"><List className="w-4 h-4 mr-2" /> Atur Cara</TabsTrigger>
-            <TabsTrigger value="admin" className="flex-1 max-w-[180px] h-full"><Shield className="w-4 h-4 mr-2" /> Admin</TabsTrigger>
+            <TabsTrigger value="draw" className="flex-1 max-w-[150px] h-full"><Trophy className="w-4 h-4 mr-2" /> Cabutan</TabsTrigger>
+            <TabsTrigger value="guests" className="flex-1 max-w-[150px] h-full"><Users className="w-4 h-4 mr-2" /> Tetamu</TabsTrigger>
+            <TabsTrigger value="messages" className="flex-1 max-w-[150px] h-full"><MessageSquare className="w-4 h-4 mr-2" /> Mesej</TabsTrigger>
+            <TabsTrigger value="settings" className="flex-1 max-w-[150px] h-full"><SettingsIcon className="w-4 h-4 mr-2" /> Tetapan</TabsTrigger>
+            <TabsTrigger value="program" className="flex-1 max-w-[150px] h-full"><List className="w-4 h-4 mr-2" /> Atur Cara</TabsTrigger>
+            <TabsTrigger value="admin" className="flex-1 max-w-[150px] h-full"><Shield className="w-4 h-4 mr-2" /> Admin</TabsTrigger>
           </TabsList>
 
           <TabsContent value="draw" className="space-y-8">
@@ -478,32 +479,16 @@ export default function AdminDashboard() {
                     )} />
                   </div>
 
-                  <div className="border-t pt-6">
-                    <FormField control={form.control} name="luckyDrawEnabled" render={({ field }) => (
-                      <FormItem className="flex items-center justify-between rounded-lg border p-4 bg-muted/30">
-                        <div className="space-y-0.5">
-                          <FormLabel className="text-base font-semibold flex items-center gap-2">
-                            <Trophy className="w-4 h-4 text-accent" /> Cabutan Bertuah
-                          </FormLabel>
-                          <p className="text-sm text-muted-foreground">Hidupkan atau matikan cabutan bertuah untuk tetamu</p>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                            data-testid="switch-lucky-draw"
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )} />
-                  </div>
-
                   <Button type="submit" className="w-full" disabled={updateSettings.isPending}>
                     {updateSettings.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />} Simpan Tetapan
                   </Button>
                 </form>
               </Form>
             </section>
+          </TabsContent>
+
+          <TabsContent value="messages">
+            <MessageSettings />
           </TabsContent>
 
           <TabsContent value="program">
@@ -738,6 +723,121 @@ function AdminUserManager() {
         {(!admins || admins.length === 0) && (
           <p className="text-center py-8 text-muted-foreground italic">Tiada admin. Klik 'Tambah Admin' untuk mula.</p>
         )}
+      </div>
+    </section>
+  );
+}
+
+function MessageSettings() {
+  const { data: settings, isLoading } = useSettings();
+  const updateSettings = useUpdateSettings();
+  const { toast } = useToast();
+  
+  const [luckyDrawEnabled, setLuckyDrawEnabled] = useState(true);
+  const [responseAttending, setResponseAttending] = useState("");
+  const [responseMaybe, setResponseMaybe] = useState("");
+  const [responseNotAttending, setResponseNotAttending] = useState("");
+
+  useEffect(() => {
+    if (settings) {
+      setLuckyDrawEnabled(settings.luckyDrawEnabled ?? true);
+      setResponseAttending(settings.responseAttending || "Terima kasih! Kami tidak sabar untuk bertemu anda di majlis nanti.");
+      setResponseMaybe(settings.responseMaybe || "Terima kasih atas maklum balas. Kami harap dapat bertemu anda!");
+      setResponseNotAttending(settings.responseNotAttending || "Terima kasih atas maklum balas. Semoga dapat bertemu di lain kesempatan.");
+    }
+  }, [settings]);
+
+  const handleSave = async () => {
+    if (!settings) return;
+    try {
+      await updateSettings.mutateAsync({
+        luckyDrawEnabled,
+        responseAttending,
+        responseMaybe,
+        responseNotAttending,
+      } as any);
+      toast({ title: "Berjaya", description: "Tetapan mesej telah disimpan." });
+    } catch (err: any) {
+      toast({ title: "Ralat", description: err.message, variant: "destructive" });
+    }
+  };
+
+  if (isLoading) return <Loader2 className="w-8 h-8 animate-spin mx-auto" />;
+
+  return (
+    <section className="bg-card rounded-xl border p-6 shadow-sm max-w-3xl mx-auto space-y-8">
+      <div className="flex items-center gap-3 mb-6">
+        <MessageSquare className="w-6 h-6 text-primary" />
+        <h3 className="font-display text-xl font-bold">Tetapan Mesej & Cabutan</h3>
+      </div>
+
+      <div className="space-y-6">
+        <div className="flex items-center justify-between rounded-lg border p-4 bg-muted/30">
+          <div className="space-y-0.5">
+            <Label className="text-base font-semibold flex items-center gap-2">
+              <Trophy className="w-4 h-4 text-accent" /> Cabutan Bertuah
+            </Label>
+            <p className="text-sm text-muted-foreground">Hidupkan atau matikan cabutan bertuah untuk tetamu</p>
+          </div>
+          <Switch
+            checked={luckyDrawEnabled}
+            onCheckedChange={setLuckyDrawEnabled}
+            data-testid="switch-lucky-draw"
+          />
+        </div>
+
+        <div className="border-t pt-6 space-y-6">
+          <h4 className="font-semibold text-lg flex items-center gap-2">
+            <UserCheck className="w-5 h-5 text-green-600" /> Mesej Respons Kehadiran
+          </h4>
+          <p className="text-sm text-muted-foreground -mt-4">Ubahsuai mesej yang akan dipaparkan kepada tetamu selepas mereka mendaftar.</p>
+          
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2 text-green-700">
+                <UserCheck className="w-4 h-4" /> Hadir
+              </Label>
+              <Textarea
+                value={responseAttending}
+                onChange={(e) => setResponseAttending(e.target.value)}
+                placeholder="Mesej untuk tetamu yang hadir..."
+                className="min-h-[80px]"
+                data-testid="input-response-attending"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2 text-yellow-700">
+                <Users className="w-4 h-4" /> Mungkin Hadir
+              </Label>
+              <Textarea
+                value={responseMaybe}
+                onChange={(e) => setResponseMaybe(e.target.value)}
+                placeholder="Mesej untuk tetamu yang mungkin hadir..."
+                className="min-h-[80px]"
+                data-testid="input-response-maybe"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2 text-red-700">
+                <UserX className="w-4 h-4" /> Tidak Hadir
+              </Label>
+              <Textarea
+                value={responseNotAttending}
+                onChange={(e) => setResponseNotAttending(e.target.value)}
+                placeholder="Mesej untuk tetamu yang tidak hadir..."
+                className="min-h-[80px]"
+                data-testid="input-response-not-attending"
+              />
+            </div>
+          </div>
+        </div>
+
+        <Button className="w-full" onClick={handleSave} disabled={updateSettings.isPending}>
+          {updateSettings.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+          Simpan Tetapan Mesej
+        </Button>
       </div>
     </section>
   );

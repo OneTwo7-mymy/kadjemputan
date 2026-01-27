@@ -39,6 +39,9 @@ export const settings = pgTable("settings", {
   musicTitle: text("music_title"),
   footerText: text("footer_text").notNull().default("© 2024 Majlis Akikah & Rumah Terbuka"),
   luckyDrawEnabled: boolean("lucky_draw_enabled").notNull().default(true),
+  responseAttending: text("response_attending").default("Terima kasih! Kami tidak sabar untuk bertemu anda di majlis nanti."),
+  responseMaybe: text("response_maybe").default("Terima kasih atas maklum balas. Kami harap dapat bertemu anda!"),
+  responseNotAttending: text("response_not_attending").default("Terima kasih atas maklum balas. Semoga dapat bertemu di lain kesempatan."),
 });
 
 // Program Table
