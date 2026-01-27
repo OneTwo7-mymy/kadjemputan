@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { TicketCard } from "@/components/TicketCard";
+import { ThankYouCard } from "@/components/ThankYouCard";
 import { OrnamentalBorder } from "@/components/OrnamentalBorder";
 import { MapPin, Calendar, Clock, Loader2, Heart, ExternalLink, QrCode, List, Volume2, VolumeX, Settings2, Moon, Sun } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -283,7 +284,7 @@ export default function Home() {
               </h2>
               <p className="text-muted-foreground">
                 {successData 
-                  ? "Terima kasih kerana sudi hadir. Sila simpan tiket ini." 
+                  ? (settings?.luckyDrawEnabled ? "Terima kasih kerana sudi hadir. Sila simpan tiket ini." : "Terima kasih kerana sudi hadir.")
                   : "Sila sahkan kehadiran anda untuk memudahkan urusan jamuan."}
               </p>
             </div>
@@ -295,7 +296,11 @@ export default function Home() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                 >
-                  <TicketCard name={successData.name} code={successData.code} />
+                  {settings?.luckyDrawEnabled ? (
+                    <TicketCard name={successData.name} code={successData.code} />
+                  ) : (
+                    <ThankYouCard name={successData.name} />
+                  )}
                   <div className="mt-8 text-center">
                     <Button variant="outline" onClick={() => { setSuccessData(null); form.reset(); }}>
                       Daftar Tetamu Lain
