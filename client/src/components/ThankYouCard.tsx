@@ -1,11 +1,35 @@
 import { motion } from "framer-motion";
-import { Heart, PartyPopper } from "lucide-react";
+import { Heart, PartyPopper, UserCheck, Users, UserX } from "lucide-react";
 
 interface ThankYouCardProps {
   name: string;
+  message: string;
+  attendance: "attending" | "maybe" | "not_attending";
 }
 
-export function ThankYouCard({ name }: ThankYouCardProps) {
+export function ThankYouCard({ name, message, attendance }: ThankYouCardProps) {
+  const getAttendanceIcon = () => {
+    switch (attendance) {
+      case "attending":
+        return <UserCheck className="w-6 h-6 text-green-600" />;
+      case "maybe":
+        return <Users className="w-6 h-6 text-yellow-600" />;
+      case "not_attending":
+        return <UserX className="w-6 h-6 text-red-600" />;
+    }
+  };
+
+  const getAttendanceLabel = () => {
+    switch (attendance) {
+      case "attending":
+        return "Hadir";
+      case "maybe":
+        return "Mungkin Hadir";
+      case "not_attending":
+        return "Tidak Hadir";
+    }
+  };
+
   return (
     <motion.div
       initial={{ scale: 0.9, opacity: 0 }}
@@ -32,11 +56,15 @@ export function ThankYouCard({ name }: ThankYouCardProps) {
               <PartyPopper className="w-6 h-6" />
             </div>
             <p className="font-display text-lg font-semibold text-foreground">{name}</p>
+            <div className="flex items-center justify-center gap-2 mt-2">
+              {getAttendanceIcon()}
+              <span className="text-sm font-medium text-muted-foreground">{getAttendanceLabel()}</span>
+            </div>
           </div>
 
           <div className="bg-primary/5 dark:bg-primary/10 py-4 px-6 rounded-lg border border-primary/20">
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Kehadiran anda amat kami hargai. Jumpa anda di majlis nanti!
+              {message}
             </p>
           </div>
 

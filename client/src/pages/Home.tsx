@@ -32,7 +32,7 @@ export default function Home() {
   const { data: settings, isLoading: isSettingsLoading } = useSettings();
   const { data: program } = useProgram();
   const createGuest = useCreateGuest();
-  const [successData, setSuccessData] = useState<{ name: string; code: string } | null>(null);
+  const [successData, setSuccessData] = useState<{ name: string; code: string; attendance: string } | null>(null);
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState([20]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -79,7 +79,7 @@ export default function Home() {
   const onSubmit = (data: InsertGuest) => {
     createGuest.mutate(data, {
       onSuccess: (res) => {
-        setSuccessData({ name: res.name, code: res.luckyDrawCode });
+        setSuccessData({ name: res.name, code: res.luckyDrawCode, attendance: res.attendance });
         toast({
           title: "Terima Kasih!",
           description: "Kehadiran anda telah direkodkan.",
@@ -296,11 +296,27 @@ export default function Home() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                 >
-                  {settings?.luckyDrawEnabled ? (
-                    <TicketCard name={successData.name} code={successData.code} />
-                  ) : (
-                    <ThankYouCard name={successData.name} />
-                  )}
+                  {(() => {
+                    const getResponseMessage = () => {
+                      switch (successData.attendance) {
+                        case "attending":
+                          return settings?.responseAttending || "Terima kasih! Kami tidak sabar untuk bertemu anda di majlis nanti.";
+                        case "maybe":
+                          return settings?.responseMaybe || "Terima kasih atas maklum balas. Kami harap dapat bertemu anda!";
+                        case "not_attending":
+                          return settings?.responseNotAttending || "Terima kasih atas maklum balas. Semoga dapat bertemu di lain kesempatan.";
+                        default:
+                          return "Terima kasih atas maklum balas anda.";
+                      }
+                    };
+                    const message = getResponseMessage();
+                    
+                    return settings?.luckyDrawEnabled ? (
+                      <TicketCard name={successData.name} code={successData.code} message={message} />
+                    ) : (
+                      <ThankYouCard name={successData.name} message={message} attendance={successData.attendance as "attending" | "maybe" | "not_attending"} />
+                    );
+                  })()}
                   <div className="mt-8 text-center">
                     <Button variant="outline" onClick={() => { setSuccessData(null); form.reset(); }}>
                       Daftar Tetamu Lain

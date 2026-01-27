@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 interface TicketCardProps {
   name: string;
   code: string;
+  message?: string;
 }
 
-export function TicketCard({ name, code }: TicketCardProps) {
+export function TicketCard({ name, code, message }: TicketCardProps) {
   const { toast } = useToast();
 
   const handleCopy = () => {
@@ -56,6 +57,14 @@ export function TicketCard({ name, code }: TicketCardProps) {
             <Copy className="w-4 h-4 mr-2" />
             Salin Kod
           </Button>
+
+          {message && (
+            <div className="bg-primary/5 p-3 rounded-lg border border-primary/10">
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {message}
+              </p>
+            </div>
+          )}
 
           <div className="flex items-start gap-2 text-left bg-primary/5 p-3 rounded-lg border border-primary/10 mt-4">
             <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
