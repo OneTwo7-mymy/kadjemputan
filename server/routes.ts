@@ -3,18 +3,62 @@ import type { Server } from "http";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
 import { z } from "zod";
-import { setupAuth, isAuthenticated, authStorage } from "./replit_integrations/auth";
+import { setupAuth, isAuthenticated as realIsAuthenticated, authStorage } from "./replit_integrations/auth";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 import { seedDatabase } from "./seed";
+import { Request, Response, NextFunction } from "express";
+import session from "express-session";
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  
+
   await seedDatabase();
-  await setupAuth(app);
-  await authStorage.ensureDefaultAdmin();
+
+  const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+    if (!process.env.DATABASE_URL) return next();
+    return realIsAuthenticated(req, res, next);
+  };
+
+  if (process.env.DATABASE_URL) {
+    await setupAuth(app);
+    await authStorage.ensureDefaultAdmin();
+  } else {
+    // Enable session middleware for local preview
+    app.set("trust proxy", 1);
+    app.use(
+      session({
+        secret: "local-preview-secret",
+        resave: false,
+        saveUninitialized: false,
+        store: storage.sessionStore,
+        cookie: { secure: false },
+      })
+    );
+
+    // Mock auth for local preview
+    app.post("/api/login", (req, res) => {
+      const { username, password } = req.body;
+      if (username === "admin" && password === "admin123") {
+        req.session.userId = 1;
+        req.session.username = "admin";
+        req.session.displayName = "Administrator";
+        res.json({ id: 1, username: "admin", displayName: "Administrator" });
+      } else {
+        res.status(401).json({ message: "Invalid username or password" });
+      }
+    });
+
+    app.post("/api/logout", (req, res) => {
+      res.json({ message: "Logged out successfully" });
+    });
+
+    app.get("/api/auth/user", (req, res) => {
+      // Always return logged in admin user for convenience in preview
+      res.json({ id: 1, username: "admin", displayName: "Administrator" });
+    });
+  }
   registerObjectStorageRoutes(app);
 
   app.post(api.guests.create.path, async (req, res) => {
@@ -158,12 +202,12 @@ export async function registerRoutes(
   app.delete('/api/admin/users/:id', isAuthenticated, async (req, res) => {
     const idParam = req.params.id;
     const id = parseInt(Array.isArray(idParam) ? idParam[0] : idParam);
-    
+
     const admins = await authStorage.getAllAdmins();
     if (admins.length <= 1) {
       return res.status(400).json({ message: "Cannot delete the last admin user" });
     }
-    
+
     await authStorage.deleteAdmin(id);
     res.json({ message: "Admin user deleted successfully" });
   });
@@ -173,11 +217,11 @@ export async function registerRoutes(
       const idParam = req.params.id;
       const id = parseInt(Array.isArray(idParam) ? idParam[0] : idParam);
       const { password } = req.body;
-      
+
       if (!password || password.length < 6) {
         return res.status(400).json({ message: "Password must be at least 6 characters" });
       }
-      
+
       await authStorage.updateAdminPassword(id, password);
       res.json({ message: "Password updated successfully" });
     } catch (err) {
